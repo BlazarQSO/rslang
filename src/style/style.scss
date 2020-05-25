@@ -1,1 +1,23 @@
 @import './header.scss';
+@import './statistics.scss';
+
+
+/*------------------TOGGLE CLASSES-------------------*/
+
+.show {
+    display: block;
+}
+
+.hide {
+    display: none;
+}
+
+.decoration {
+    text-decoration: underline;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+/*----------------END TOGGLE CLASSES-----------------*/
