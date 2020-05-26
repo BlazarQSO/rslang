@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Learning English</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
 </head>
+
 <body class="body">
     <header class="header" id="header">
         <button class="header__btn" id="btn"></button>
-        <h1 class="header__title">Learning English</h1>        
+        <h1 class="header__title">Learning English</h1>
         <nav class="nav" id="nav">
             <ul class="nav__list" id="list">
                 <li class="nav__list-home" id="liHome">Home Page</li>
-                <li class="nav__list-main" id="liMain">Main Page</li>                                
+                <li class="nav__list-main" id="liMain">Main Page</li>
                 <li class="nav__list-savannah" id="liSavannah">Savannah</li>
                 <li class="nav__list-audiocall" id="liAudiocall">Audiocall</li>
                 <li class="nav__list-sprint" id="liSprint">Sprint</li>
-                <li class="nav__list-choice" id="liChoice">Choice</li>                
+                <li class="nav__list-choice" id="liChoice">Choice</li>
                 <li class="nav__list-mosaic" id="liMosaic">Mosaic</li>
                 <li class="nav__list-dictionary" id="liDictionary">Dictionary</li>
                 <li class="nav__list-statistics" id="liStatistics">Statistics</li>
@@ -26,28 +28,29 @@
     </header>
     <main class="main" id="main">
     </main>
-    <section class="start-page" id="startPage">
-        <h2>Преимущеста приложения</h2>
-        <h2>Особенности приложения</h2>
-        <h3>Описание набора правил для определения интервала</h3>
+    <section class="start-page hide" id="startPage">
+        <section class="start-page__top">
+            <div class="start-page__top-description">
+                <h2 class="start-page__top-title">Преимущеста приложения</h2>
+                <h2 class="start-page__top-title">Особенности приложения</h2>
+                <h3 class="start-page__top-title">Описание набора правил для определения интервала</h3>
+            </div>
+        </section>
         <button class="start-page__btn" id="start">Start</button>
-        <section>
-            <h2>Developer</h2>
-            <p>Iukou Siarhei</p>
-            <a href="#">GitHub</a>
-            <a href="#">LinkedIn</a>
+        <section class="start-page__bottom">
+            <section>
+                <h3 class="start-page__bottom-title">Презентация приложения</h3>
+                <figure  class="start-page__bottom-presentation">
+                    <img src="./src/img/poster.jpg" alt="">
+                </figure>
+            </section>
+            <section  class="start-page__bottom-about">
+                <h2>Developer</h2>
+                <p>Iukou Siarhei</p>
+                <a href="#">GitHub</a>
+                <a href="#">LinkedIn</a>
+            </section>
         </section>
-        <section>
-            <h3>Презентация приложения</h3>
-        </section>
-    </section>
-    <section class="settings" id="settings">
-        <h2>Settings</h2>
-        <div>
-            <h3>Cards</h3>
-            <input type="checkbox" id="check"/>
-            <label for="check">Show transcription</label>
-        </div>
     </section>
     <section class="statistics" id="statistics">
         <h2 class="statistics__title">Statistics</h2>
@@ -71,9 +74,18 @@
             <button class="buttons__btn" id="reset">Reset</button>
         </div>
     </section>
-    <footer class="footer">
+    <section class="settings" id="settings">
+        <h2 class="settings__title">Settings</h2>
+        <div>
+            <h3>Cards</h3>
+            <input type="checkbox" id="check" />
+            <label for="check">Show transcription</label>
+        </div>
+    </section>
+    <footer class="footer" id="footer">
         <h2>by BlazarQSO</h2>
         <a href="#">GitHub</a>
     </footer>
 </body>
+
 </html>

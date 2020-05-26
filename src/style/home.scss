@@ -1,0 +1,90 @@
+.start-page {
+    background-color: bisque;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    &__btn {
+        border: 1px solid #447314;
+        background: #1f2a38;
+        background: -webkit-gradient(linear, left top, left bottom, from(#62c4ad), to(#1f2a38));
+        background: -webkit-linear-gradient(top, #62c4ad, #1f2a38);
+        border-radius: 10px;
+        box-shadow: rgba(255, 255, 255, 0.4) 0 1px 0, inset rgba(255, 255, 255, 0.4) 0 1px 0;
+        text-shadow: #61bdc2 0 1px 0;
+        color: #000f61;
+        font-family: helvetica, serif;
+        outline: none;
+        font-size: 36px;
+        text-decoration: none;
+        vertical-align: middle;
+        font-weight: bold;
+        width: 200px;
+        height: 80px;        
+        align-self: center;
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+    &__btn:hover {
+        border: 1px solid #447314;
+        text-shadow: #31540c 0 1px 0;
+        background: #30451c;
+        background: -webkit-gradient(linear, left top, left bottom, from(#6b90b9), to(#293a1a));
+        background: -webkit-linear-gradient(top, #6b90b9, #293a1a);
+        color: #fff;
+    }
+    &__btn:active {
+        text-shadow: #31540c 0 1px 0;
+        border: 1px solid #447314;
+        background: #4e8c9c;
+        background: -webkit-gradient(linear, left top, left bottom, from(#602970), to(#30451c));
+        background: -webkit-linear-gradient(top, #602970, #4e8c9c);
+        color: #fff;
+    }
+
+    &__top {        
+        width: 100%;
+
+        &-description {
+            text-align: center;            
+        }        
+        &-title {
+            margin: 0;
+        }
+    }
+    &__bottom {
+        display: flex;        
+
+        &-presentation {
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;            
+            
+            img {
+                width: 80%;
+                object-fit: cover;
+                align-self: center;
+            }
+        }
+        &-title {
+            text-align: center;
+        }
+
+        &-about {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 50%;
+
+            h2 {
+                color: green;
+            }
+            a {
+                color: black;
+            }
+        }
+    }
+}
