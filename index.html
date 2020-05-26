@@ -28,23 +28,23 @@
     </header>
     <main class="main" id="main">
     </main>
-    <section class="start-page hide" id="startPage">
-        <section class="start-page__top">
-            <div class="start-page__top-description">
-                <h2 class="start-page__top-title">Преимущеста приложения</h2>
-                <h2 class="start-page__top-title">Особенности приложения</h2>
-                <h3 class="start-page__top-title">Описание набора правил для определения интервала</h3>
+    <section class="home-page hide" id="startPage">
+        <section class="home-page__top">
+            <div class="home-page__top-description">
+                <h2 class="home-page__top-title">Преимущеста приложения</h2>
+                <h2 class="home-page__top-title">Особенности приложения</h2>
+                <h3 class="home-page__top-title">Описание набора правил для определения интервала</h3>
             </div>
         </section>
-        <button class="start-page__btn" id="start">Start</button>
-        <section class="start-page__bottom">
+        <button class="home-page__btn" id="start">Start</button>
+        <section class="home-page__bottom">
             <section>
-                <h3 class="start-page__bottom-title">Презентация приложения</h3>
-                <figure  class="start-page__bottom-presentation">
+                <h3 class="home-page__bottom-title">Презентация приложения</h3>
+                <figure class="home-page__bottom-presentation">
                     <img src="./src/img/poster.jpg" alt="">
                 </figure>
             </section>
-            <section  class="start-page__bottom-about">
+            <section class="home-page__bottom-about">
                 <h2>Developer</h2>
                 <p>Iukou Siarhei</p>
                 <a href="#">GitHub</a>
@@ -76,10 +76,82 @@
     </section>
     <section class="settings" id="settings">
         <h2 class="settings__title">Settings</h2>
-        <div>
-            <h3>Cards</h3>
-            <input type="checkbox" id="check" />
-            <label for="check">Show transcription</label>
+        <div class="settings__cards">
+            <input type="number" id="rangeMaxWords" />
+            <label for="rangeMaxWords">Maximum words</label>
+            <input type="number" id="rangeNewWords" />
+            <label for="rangeNewWords">New words</label>
+            <div>
+                <h3>Information on the cards</h3>
+                <!-- <input type="checkbox" id="translate" />
+                <label for="translate">Translation of words</label> -->
+                <div>
+                    <input type="checkbox" id="transcription" />
+                    <label for="transcription">Transcription</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="imagesWords" />
+                    <label for="imagesWords">Images of words</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="explanationWords" />
+                    <label for="explanationWords">Explanation of the word</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="sentenceWords" />
+                    <label for="sentenceWords">Sentence with the word</label>
+                </div>
+            </div>
+        </div>
+        <div class="settings__buttons">
+            <div>
+                <div>
+                    <h4>Show answer</h4>
+                    <input type="radio" id="raido_answer1" name="answer" checked="checked" />
+                    <label for="radio_answer1">Show</label>
+                    <input type="radio" id="raido_answer2" name="answer" />
+                    <label for="radio_answer2">Hide</label>
+                </div>
+                <div>
+                    <h4>Remove word</h4>
+                    <input type="radio" id="raido_remove1" name="remove" checked="checked" />
+                    <label for="radio_remove1">Show</label>
+                    <input type="radio" id="raido_remove2" name="remove" />
+                    <label for="radio_remove2">Hide</label>
+                </div>
+                <div>
+                    <h4>Difficult word</h4>
+                    <input type="radio" id="raido_difficult1" name="difficult" checked="checked" />
+                    <label for="radio_difficult1">Show</label>
+                    <input type="radio" id="raido_difficult2" name="difficult" />
+                    <label for="radio_difficult2">Hide</label>
+                </div>
+            </div>
+            <div>
+                <div>
+                    <h4>Making a list of words</h4>
+                    <input type="radio" id="raido_list1" name="list" checked="checked" />
+                    <label for="radio_list1">Alternately</label>
+                    <input type="radio" id="raido_list2" name="list" />
+                    <label for="radio_list2">Only new</label>
+                    <input type="radio" id="raido_list2" name="list" />
+                    <label for="radio_list3">Only repetitions</label>
+                </div>
+                <div>
+                    <h4>Buttons for interval repetition</h4>
+                    <input type="radio" id="raido_interval1" name="interval" checked="checked" />
+                    <label for="radio_interval1">Show</label>
+                    <input type="radio" id="raido_interval2" name="interval" />
+                    <label for="radio_interval2">Hide</label>
+                </div>
+                <div>
+                    <h4>Sound</h4>
+                    <input type="radio" id="raido_audio1" name="audio" checked="checked" />
+                    <label for="radio_audio1">Turn on</label>
+                    <input type="radio" id="raido_audio2" name="audio" />
+                    <label for="radio_audio2">Turn off</label>
+                </div>
+            </div>
         </div>
     </section>
     <footer class="footer" id="footer">

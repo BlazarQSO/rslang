@@ -1,4 +1,4 @@
-.start-page {
+.home-page {
     background-color: bisque;
     height: 100vh;
     width: 100%;
@@ -21,7 +21,7 @@
         vertical-align: middle;
         font-weight: bold;
         width: 200px;
-        height: 80px;        
+        height: 80px;
         align-self: center;
         margin-top: 40px;
         margin-bottom: 40px;
@@ -43,25 +43,25 @@
         color: #fff;
     }
 
-    &__top {        
+    &__top {
         width: 100%;
 
         &-description {
-            text-align: center;            
-        }        
+            text-align: center;
+        }
         &-title {
             margin: 0;
         }
     }
     &__bottom {
-        display: flex;        
+        display: flex;
 
         &-presentation {
             display: flex;
             flex-direction: column;
             padding: 0;
-            margin: 0;            
-            
+            margin: 0;
+
             img {
                 width: 80%;
                 object-fit: cover;

@@ -24,6 +24,17 @@
         width: 150px;
         text-align: center;
     }
+    &__cards {
+        >div {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+    &__buttons {
+        >div {
+            display: flex;
+        }
+    }
 }
 
 /*-------------------END SETTINGS----------------------*/
