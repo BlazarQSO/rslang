@@ -1,6 +1,6 @@
-@import './header.scss';
-@import './statistics.scss';
-@import './home.scss';
+@import "./header.scss";
+@import "./statistics.scss";
+@import "./home.scss";
 
 .body {
     padding: 0;
@@ -25,13 +25,13 @@
         text-align: center;
     }
     &__cards {
-        >div {
+        > div {
             display: flex;
             flex-direction: column;
         }
     }
     &__buttons {
-        >div {
+        > div {
             display: flex;
         }
     }
@@ -40,18 +40,143 @@
 /*-------------------END SETTINGS----------------------*/
 
 .main {
-    height: 50vh;
+    min-height: 60vh;
     background-color: #f3f3f3;
+    padding-top: 20px;
 }
 
 .footer {
     height: 150px;
     width: 100%;
-    background-color: #846854;;
+    background-color: #846854;
     display: flex;
     justify-content: space-around;
     align-items: center;
 }
+
+/*---------------------CARD-----------------------*/
+
+.card {
+    width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 2px solid gray;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    position: relative;
+
+    &__left,
+    &__right {
+        min-width: 35px;
+        min-height: 60px;
+        background-repeat: no-repeat;
+        background-size: cover;
+        border: 0;
+        outline: none;
+    }
+    &__left {
+        background-image: url("../img/arrow-left.png");
+        background-position: left -11px top 0px;
+    }
+    &__right {
+        background-image: url("../img/arrow-right.png");
+        background-position: left -14px top 0px;
+    }
+
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-content: space-between;
+        align-items: center;
+    }
+
+    &__play {
+        display: none;
+        border: 0;
+        outline: 0;
+        width: 50px;
+        height: 50px;
+        position: absolute;
+        left: 0;
+        background-image: url("../img/voice.png");
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    img {
+        width: 300px;
+        height: 200px;
+        object-fit: cover;
+    }
+    p {
+        margin: 0;
+        margin-top: 5px;
+        padding: 0;
+        font-size: 16px;
+        padding-left: 10px;
+        padding-right: 10px;
+        min-height: 20px;
+    }
+
+    &__input {
+        width: 300px;
+        height: 50px;
+        display: flex;
+        justify-content: space-around;
+        margin-top: 10px;
+        position: relative;
+
+        &-item {
+            font-size: 24px;
+            width: 100%;
+            outline: none;
+            padding-left: 8px;
+        }
+        &-correct {
+            position: absolute;
+            left: 10px;
+            top: 11px;
+            font-size: 24px;
+        }
+    }
+    &__translation {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-around;
+
+        span {
+            width: 100px;
+            text-align: center;
+        }
+    }
+    &__range,
+    &__interval,
+    &__answer {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        width: 300px;
+
+        button {
+            width: 70px;
+        }
+    }
+    &__answer {
+        button {
+            width: 120px;
+        }
+    }
+    &__range {
+        input {
+            width: 240px;
+        }
+    }
+}
+
+/*-------------------END CARD-----------------------*/
 
 /*------------------TOGGLE CLASSES-------------------*/
 
@@ -69,6 +194,19 @@
 
 .hidden {
     visibility: hidden;
+}
+
+.opacity-correct {
+    opacity: 0.5;
+}
+
+.go-next {
+    outline: 2px solid gold;
+    background-color: goldenrod;
+}
+
+.correct-color {
+    color: green;
 }
 
 /*----------------END TOGGLE CLASSES-----------------*/

@@ -6,6 +6,7 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Learning English</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="shortcut icon" href="./img/burro.png" type="image/png">
 </head>
 
 <body class="body">
@@ -26,8 +27,7 @@
             </ul>
         </nav>
     </header>
-    <main class="main" id="main">
-    </main>
+    <main class="main" id="main"></main>
     <section class="home-page hide" id="startPage">
         <section class="home-page__top">
             <div class="home-page__top-description">
@@ -77,10 +77,10 @@
     <section class="settings" id="settings">
         <h2 class="settings__title">Settings</h2>
         <div class="settings__cards">
-            <input type="number" id="rangeMaxWords" />
-            <label for="rangeMaxWords">Maximum words</label>
-            <input type="number" id="rangeNewWords" />
-            <label for="rangeNewWords">New words</label>
+            <label for="maxWords">Maximum words</label>
+            <input type="number" id="maxWords" value="20" />
+            <label for="newWords">New words</label>
+            <input type="number" id="newWords" value="10" />
             <div>
                 <h3>Information on the cards</h3>
                 <!-- <input type="checkbox" id="translate" />

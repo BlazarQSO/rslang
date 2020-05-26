@@ -1,5 +1,5 @@
 import Statistics from '../statistics/statistics';
-// import main from '../main/main';
+import Main from '../main/main';
 
 function eventNav(e) {
     if (e.target.tagName === 'LI') {
@@ -7,7 +7,7 @@ function eventNav(e) {
         if (e.target.id === 'liMain' && !e.target.classList.contains('decoration')) {
             document.getElementById('statistics').classList.remove('show');
             mainPage.classList.remove('hide');
-            // main();
+            (new Main()).createCard();
         } else if (e.target.id === 'liStatistics') {
             mainPage.innerHTML = '';
             mainPage.classList.add('hide');
