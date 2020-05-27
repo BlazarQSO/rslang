@@ -12,6 +12,12 @@ export default class Main {
         this.listToday = [];
         this.cardIndex = 0;
         this.nextNewWord = 0;
+        this.consecutive = 0;
+        this.newConsecutive = 0;
+        this.newWordsToday = 0;
+        this.correctAnswer = 0;
+        this.incorrectAnswer = 0;
+        this.allStudyWords = [];
         this.checkCreateListFn();
         this.setSettings();
     }
@@ -28,16 +34,12 @@ export default class Main {
         img.src = './img/default.jpg';
         img.setAttribute('alt', '');
         const explanation = document.createElement('p');
-        // explanation.innerHTML = 'Meaning word';
         explanation.id = 'cardMeaning';
         const translation = document.createElement('p');
-        // translation.innerHTML = 'translation meaning word';
         translation.id = 'cardMeaningTranslation';
         const sentence = document.createElement('p');
-        // sentence.innerHTML = 'example word';
         sentence.id = 'cardExample';
         const sentenceTranslation = document.createElement('p');
-        // sentenceTranslation.innerHTML = 'translation example word';
         sentenceTranslation.id = 'cardExampleTranslation';
 
         const input = document.createElement('div');
@@ -98,12 +100,10 @@ export default class Main {
         wrapRange.className = 'card__range';
         const firstNumber = document.createElement('span');
         firstNumber.id = 'firstNumber';
-        // firstNumber.innerHTML = '10';
         const secondNumber = document.createElement('span');
         secondNumber.id = 'secondNumber';
-        // secondNumber.innerHTML = '3';
-        const range = document.createElement('input');
-        range.setAttribute('type', 'range');
+        const range = document.createElement('progress');
+        range.setAttribute('value', 0);
         range.id = 'rangeWords';
         wrapRange.append(firstNumber);
         wrapRange.append(range);
@@ -147,12 +147,64 @@ export default class Main {
         wrapper.className = 'finished';
         const message = document.createElement('h3');
         message.className = 'finished__message';
-        message.innerHTML = 'План на сегодня выполнен! Для продолжения нажмите кнопку "Учить ещё"';
+        message.innerHTML = 'План на сегодня выполнен!';
+
+        const statistics = document.createElement('div');
+        statistics.className = 'finished__statistics';
+        const wrapCount = document.createElement('div');
+        const countMes = document.createElement('span');
+        countMes.className = 'finished__statistics-count';
+        countMes.id = 'statCountMes';
+        countMes.innerHTML = 'Карточек завершено:';
+        const count = document.createElement('span');
+        count.className = 'finished__statistics-count';
+        count.id = 'statCount';
+        wrapCount.append(countMes);
+        wrapCount.append(count);
+
+        const wrapCorrect = document.createElement('div');
+        const correctMes = document.createElement('span');
+        correctMes.className = 'finished__statistics-correct';
+        correctMes.id = 'statCorrectMes';
+        correctMes.innerHTML = 'Правильных ответов:';
+        const correct = document.createElement('span');
+        correct.className = 'finished__statistics-correct';
+        correct.id = 'statCorrect';
+        wrapCorrect.append(correctMes);
+        wrapCorrect.append(correct);
+
+        const wrapNew = document.createElement('div');
+        const newMes = document.createElement('span');
+        newMes.className = 'finished__statistics-new';
+        newMes.id = 'statNewMes';
+        newMes.innerHTML = 'Новые слова:';
+        const newWord = document.createElement('span');
+        newWord.className = 'finished__statistics-new';
+        newWord.id = 'statNewWords';
+        wrapNew.append(newMes);
+        wrapNew.append(newWord);
+
+        const wrapLong = document.createElement('div');
+        const longMes = document.createElement('span');
+        longMes.className = 'finished__statistics-long';
+        longMes.id = 'statLongMes';
+        longMes.innerHTML = 'Серия правильных ответов:';
+        const long = document.createElement('span');
+        long.className = 'finished__statistics-long';
+        long.id = 'statLong';
+        wrapLong.append(longMes);
+        wrapLong.append(long);
+
         const btn = document.createElement('button');
         btn.innerHTML = 'Учить ещё';
         btn.className = 'finished__btn';
         btn.id = 'addition';
+        statistics.append(wrapCount);
+        statistics.append(wrapCorrect);
+        statistics.append(wrapNew);
+        statistics.append(wrapLong);
         wrapper.append(message);
+        wrapper.append(statistics);
         wrapper.append(btn);
         return wrapper || this.blank;
     }
@@ -161,11 +213,29 @@ export default class Main {
         let date = new Date();
         date = `${date.getDate()}${(date.getMonth + 1)}${date.getFullYear}`;
         this.checkCreateList = localStorage.getItem('listDay') === date;
+        // статистику сделать в одну строку с id = todayStat, разделённые запятыми,
+        // split(',') создать массив и диструкторизацией передать значения в нужные переменные.
+        // елси новый день тогда '0,0,0,0...'
         if (!this.checkCreateList) {
             localStorage.setItem('passedToday', 0);
             this.passedToday = 0;
+            localStorage.setItem('newWordsToday', 0);
+            this.newWordsToday = 0;
+            localStorage.setItem('consecutive', 0);
+            this.consecutive = 0;
+            localStorage.setItem('newConsecutive', 0);
+            this.newConsecutive = 0;
+            localStorage.setItem('correctAnswer', 0);
+            this.correctAnswer = 0;
+            localStorage.setItem('incorrectAnswer', 0);
+            this.incorrectAnswer = 0;
         } else {
             this.passedToday = +(localStorage.getItem('passedToday') || '0');
+            this.newWordsToday = +(localStorage.getItem('newWordsToday') || '0');
+            this.consecutive = +(localStorage.getItem('consecutive') || '0');
+            this.newConsecutive = +(localStorage.getItem('newConsecutive') || '0');
+            this.correctAnswer = +(localStorage.getItem('correctAnswer') || '0');
+            this.incorrectAnswer = +(localStorage.getItem('incorrectAnswer') || '0');
         }
     }
 
@@ -175,6 +245,11 @@ export default class Main {
             document.getElementById('card').classList.remove('hide');
             this.passedToday = 0;
             this.cardIndex = 0;
+            this.newWordsToday = 0;
+            this.consecutive = 0;
+            this.newConsecutive = 0;
+            this.correctAnswer = 0;
+            this.incorrectAnswer = 0;
             this.createList();
             this.setWordInCard();
         };
@@ -210,6 +285,7 @@ export default class Main {
             if (this.passedToday === +document.getElementById('maxWords').value) {
                 document.getElementById('card').classList.add('hide');
                 document.getElementById('message').classList.add('show');
+                this.inputTodayStatistics();
             } else {
                 this.setWordInCard(true);
             }
@@ -256,10 +332,10 @@ export default class Main {
         // при загрузке странице берётся из seasonStorage все настройки и заносятся в соответствующие элементы.
         const userWords = [];
 
-        const words = sessionStorage.getItem('userWords');
+        const words = sessionStorage.getItem('userAllStudyWords');
         if (words) {
-            this.data = JSON.parse(words);
-            // userWords = [...this.data.learning, this.data.diff,this.data.del,this.data.learned];
+            this.allStudyWords = JSON.parse(words);
+            // userWords = [...this.allStudyWords.learning, ...this.allStudyWords.diff, ...this.allStudyWords.del];
         }
         const allWords = [...book1, ...book2, ...book3, ...book4, ...book5, ...book6];
 
@@ -371,8 +447,14 @@ export default class Main {
                 this.input.setAttribute('readonly', 'readonly');
                 this.input.classList.add('correct-color');
                 document.getElementById('cardRemove').classList.add('lock-element');
+                if (!this.allStudyWords.includes(answer)) this.newWordsToday += 1;
+                this.newConsecutive += 1;
+                this.correctAnswer += 1;
+                if (this.newConsecutive > this.consecutive) this.consecutive = this.newConsecutive;
             }
         } else {
+            this.newConsecutive = 0;
+            this.incorrectAnswer += 1;
             this.incorrectWord(answer, word.word);
         }
     }
@@ -452,5 +534,13 @@ export default class Main {
         this.input.classList.remove('correct-color');
         this.input.value = '';
         this.input.focus();
+    }
+
+    inputTodayStatistics() {
+        document.getElementById('statCount').innerHTML = this.passedToday;
+        document.getElementById('statCorrect')
+            .innerHTML = `${Math.floor((this.correctAnswer / (this.incorrectAnswer + this.correctAnswer)) * 100)}%`;
+        document.getElementById('statNewWords').innerHTML = this.newWordsToday;
+        document.getElementById('statLong').innerHTML = this.consecutive;
     }
 }
