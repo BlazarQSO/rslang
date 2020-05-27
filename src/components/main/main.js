@@ -11,6 +11,7 @@ export default class Main {
         this.settings = {};
         this.listToday = [];
         this.cardIndex = 0;
+        this.nextNewWord = 0;
         this.checkCreateListFn();
         this.setSettings();
     }
@@ -66,10 +67,10 @@ export default class Main {
         const answer = document.createElement('div');
         answer.className = 'card__answer';
         const removeBtn = document.createElement('button');
-        removeBtn.innerHTML = 'Remove word';
+        removeBtn.innerHTML = 'Remove the word';
         removeBtn.id = 'cardRemove';
         const showBtn = document.createElement('button');
-        showBtn.innerHTML = 'Show answer';
+        showBtn.innerHTML = 'Show the answer';
         showBtn.id = 'cardShow';
         answer.append(removeBtn);
         answer.append(showBtn);
@@ -185,6 +186,7 @@ export default class Main {
                 const cardCorrect = document.getElementById('cardCorrect');
                 cardCorrect.innerHTML = '';
                 cardCorrect.classList.remove('opacity-correct');
+                document.getElementById('cardRemove').classList.add('lock-element');
             }
         };
         document.getElementById('cardPlay').onclick = this.playWord.bind(this);
@@ -197,6 +199,7 @@ export default class Main {
             if (e.code === 'Enter') this.eventRight();
         };
         document.getElementById('cardRight').onclick = this.eventRight.bind(this);
+        document.getElementById('cardRemove').onclick = this.eventRemove.bind(this);
     }
 
     eventRight() {
@@ -214,6 +217,21 @@ export default class Main {
             this.setAnswerInCard();
         } else {
             this.setAnswerInCard('right');
+        }
+    }
+
+    eventRemove() {
+        // удалённое слово добавить во вкладку "удалённые слова" в словаре
+        // сделать проверку настройки, если указана галочка напротив только повторение,
+        // тогда добавлять из списка на повторение и не увеличивать nextNewWord.
+
+        if (!document.getElementById('cardRemove').classList.contains('lock-element')) {
+            this.listToday.splice(this.cardIndex, 1);
+            let allWords = [...book1, ...book2, ...book3, ...book4, ...book5, ...book6];
+            this.listToday.push(allWords[this.nextNewWord]);
+            this.nextNewWord += 1;
+            allWords = null;
+            this.setWordInCard();
         }
     }
 
@@ -246,6 +264,7 @@ export default class Main {
         const allWords = [...book1, ...book2, ...book3, ...book4, ...book5, ...book6];
 
         for (let i = 0, count = 0; i < allWords.length && count < this.settings.maxWords; i += 1) {
+            this.nextNewWord += 1;
             if (!userWords.includes(allWords[i].word)) {
                 this.listToday.push(allWords[i]);
                 count += 1;
@@ -351,6 +370,7 @@ export default class Main {
                 this.changeRange(true);
                 this.input.setAttribute('readonly', 'readonly');
                 this.input.classList.add('correct-color');
+                document.getElementById('cardRemove').classList.add('lock-element');
             }
         } else {
             this.incorrectWord(answer, word.word);
@@ -369,9 +389,6 @@ export default class Main {
         range.setAttribute('min', 0);
         range.setAttribute('max', secondNumber);
         range.value = this.passedToday;
-        // if (+secondNumber === this.passedToday) {
-        //     this.cardIndex = this.passedToday;
-        // }
     }
 
     playWord() {
@@ -422,6 +439,7 @@ export default class Main {
     }
 
     clearCard() {
+        document.getElementById('cardRemove').classList.remove('lock-element');
         document.getElementById('cardMeaningTranslation').innerHTML = '';
         document.getElementById('cardExampleTranslation').innerHTML = '';
         // document.getElementById('cardImg').src = './img/default.jpg';
