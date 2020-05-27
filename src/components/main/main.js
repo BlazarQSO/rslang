@@ -17,6 +17,7 @@ export default class Main {
         this.newWordsToday = 0;
         this.correctAnswer = 0;
         this.incorrectAnswer = 0;
+        this.currentMistake = false;
         this.allStudyWords = [];
         this.checkCreateListFn();
         this.setSettings();
@@ -79,6 +80,7 @@ export default class Main {
 
         const interval = document.createElement('div');
         interval.className = 'card__interval';
+        interval.id = 'intervalBtns';
         const againBtn = document.createElement('button');
         againBtn.innerHTML = 'Again';
         againBtn.id = 'cardAgain';
@@ -243,6 +245,7 @@ export default class Main {
         document.getElementById('addition').onclick = () => {
             document.getElementById('message').classList.remove('show');
             document.getElementById('card').classList.remove('hide');
+            document.getElementById('intervalBtns').classList.add('show');
             this.passedToday = 0;
             this.cardIndex = 0;
             this.newWordsToday = 0;
@@ -250,6 +253,7 @@ export default class Main {
             this.newConsecutive = 0;
             this.correctAnswer = 0;
             this.incorrectAnswer = 0;
+            this.listToday = [];
             this.createList();
             this.setWordInCard();
         };
@@ -275,11 +279,13 @@ export default class Main {
         };
         document.getElementById('cardRight').onclick = this.eventRight.bind(this);
         document.getElementById('cardRemove').onclick = this.eventRemove.bind(this);
+        document.getElementById('cardAgain').onclick = this.eventCardAgain.bind(this);
     }
 
     eventRight() {
         const right = document.getElementById('cardRight');
-        if (right.classList.contains('go-next') && this.cardIndex + 1 === this.passedToday) {
+        if (right.classList.contains('go-next')
+            && this.cardIndex + 1 === (this.passedToday + Number(this.currentMistake))) {
             right.classList.remove('go-next');
             this.clearCard();
             if (this.passedToday === +document.getElementById('maxWords').value) {
@@ -308,6 +314,18 @@ export default class Main {
             this.nextNewWord += 1;
             allWords = null;
             this.setWordInCard();
+        }
+    }
+
+    eventCardAgain() {
+        if (!this.currentMistake) {
+            const answer = this.input.value.toLowerCase();
+            if (!this.allStudyWords.includes(answer)) this.newWordsToday -= 1;
+            const cutWord = this.listToday.splice(this.cardIndex, 1)[0];
+            this.listToday.push(cutWord);
+            this.currentMistake = true;
+            this.passedToday -= 1;
+            this.changeRange(false);
         }
     }
 
@@ -406,7 +424,8 @@ export default class Main {
             document.getElementById('card').classList.add('hide');
             document.getElementById('message').classList.add('show');
         } else {
-            if (next) this.cardIndex += 1;
+            if (next && !this.currentMistake) this.cardIndex += 1;
+            this.currentMistake = false;
             const word = this.listToday[this.cardIndex];
             document.getElementById('cardImg').src = word.image;
             document.getElementById('cardMeaning').innerHTML = word.textMeaning;
@@ -442,17 +461,24 @@ export default class Main {
             document.getElementById('cardPlay').classList.add('show');
             document.getElementById('cardRight').classList.add('go-next');
             if (showAnswer) {
-                this.playWord();
-                this.changeRange(true);
+                // this.playWord();
                 this.input.setAttribute('readonly', 'readonly');
                 this.input.classList.add('correct-color');
                 document.getElementById('cardRemove').classList.add('lock-element');
-                if (!this.allStudyWords.includes(answer)) this.newWordsToday += 1;
+                document.getElementById('intervalBtns').classList.add('show');
                 this.newConsecutive += 1;
                 this.correctAnswer += 1;
                 if (this.newConsecutive > this.consecutive) this.consecutive = this.newConsecutive;
+                if (!this.currentMistake) {
+                    if (!this.allStudyWords.includes(answer)) this.newWordsToday += 1;
+                    this.changeRange(true);
+                } else {
+                    const cutWord = this.listToday.splice(this.cardIndex, 1)[0];
+                    this.listToday.push(cutWord);
+                }
             }
         } else {
+            this.currentMistake = true;
             this.newConsecutive = 0;
             this.incorrectAnswer += 1;
             this.incorrectWord(answer, word.word);
@@ -522,6 +548,7 @@ export default class Main {
 
     clearCard() {
         document.getElementById('cardRemove').classList.remove('lock-element');
+        document.getElementById('intervalBtns').classList.remove('show');
         document.getElementById('cardMeaningTranslation').innerHTML = '';
         document.getElementById('cardExampleTranslation').innerHTML = '';
         // document.getElementById('cardImg').src = './img/default.jpg';
@@ -537,6 +564,7 @@ export default class Main {
     }
 
     inputTodayStatistics() {
+        // добавить в статистику общее количество попыток и количество невернхы попыток
         document.getElementById('statCount').innerHTML = this.passedToday;
         document.getElementById('statCorrect')
             .innerHTML = `${Math.floor((this.correctAnswer / (this.incorrectAnswer + this.correctAnswer)) * 100)}%`;

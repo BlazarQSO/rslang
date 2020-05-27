@@ -164,6 +164,9 @@
             width: 70px;
         }
     }
+    &__interval {
+        display: none;
+    }
     &__answer {
         button {
             width: 120px;
