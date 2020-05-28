@@ -60,10 +60,8 @@ export default class Main {
         wrapTranslation.className = 'card__translation';
         const spanTranslation = document.createElement('span');
         spanTranslation.id = 'translationWord';
-        spanTranslation.innerHTML = 'word';
         const spanTranscription = document.createElement('span');
         spanTranscription.id = 'transcriptionWord';
-        spanTranscription.innerHTML = '[word]';
         wrapTranslation.append(spanTranslation);
         wrapTranslation.append(spanTranscription);
 
@@ -246,6 +244,7 @@ export default class Main {
             document.getElementById('message').classList.remove('show');
             document.getElementById('card').classList.remove('hide');
             document.getElementById('intervalBtns').classList.add('show');
+            this.setSettings();
             this.passedToday = 0;
             this.cardIndex = 0;
             this.newWordsToday = 0;
@@ -260,12 +259,14 @@ export default class Main {
         document.getElementById('cardLeft').onclick = () => {
             if (this.cardIndex > 0) {
                 this.setAnswerInCard('left');
+                this.setSettings();
                 this.input.setAttribute('readonly', 'readonly');
                 this.input.classList.add('correct-color');
                 const cardCorrect = document.getElementById('cardCorrect');
                 cardCorrect.innerHTML = '';
                 cardCorrect.classList.remove('opacity-correct');
                 document.getElementById('cardRemove').classList.add('lock-element');
+                document.getElementById('cardShow').classList.add('lock-element');
             }
         };
         document.getElementById('cardPlay').onclick = this.playWord.bind(this);
@@ -280,9 +281,28 @@ export default class Main {
         document.getElementById('cardRight').onclick = this.eventRight.bind(this);
         document.getElementById('cardRemove').onclick = this.eventRemove.bind(this);
         document.getElementById('cardAgain').onclick = this.eventCardAgain.bind(this);
+        document.getElementById('cardShow').onclick = () => {
+            if (!document.getElementById('cardShow').classList.contains('lock-element')) {
+                this.input.value = this.listToday[this.cardIndex].word;
+                const cardCorrect = document.getElementById('cardCorrect');
+                cardCorrect.innerHTML = '';
+                cardCorrect.classList.remove('opacity-correct');
+                this.eventRight();
+            }
+        };
+
+        const idChecks = ['translate', 'transcription', 'imgWord', 'meaningWord', 'exampleWord'];
+        idChecks.forEach((item) => {
+            document.getElementById(item).onclick = () => {
+                if (idChecks.filter((el) => document.getElementById(el).checked).length < 1) {
+                    document.getElementById(item).checked = true;
+                }
+            };
+        });
     }
 
     eventRight() {
+        this.setSettings();
         const right = document.getElementById('cardRight');
         if (right.classList.contains('go-next')
             && this.cardIndex + 1 === (this.passedToday + Number(this.currentMistake))) {
@@ -330,6 +350,7 @@ export default class Main {
     }
 
     createList() {
+        // КОММЕНТАРИИ не удалять, могут понадобится в описании на стартовой странице.
         // учитывать настройку Alternately - New - Repetitions
         // учитывать прошлые ошибки Mini games
         // учитвать все слова стоящие на повторение
@@ -348,8 +369,11 @@ export default class Main {
         // взять количество слов из настройки
         // все изменения настроек должны сразу же сохранятся в seasonStorage
         // при загрузке странице берётся из seasonStorage все настройки и заносятся в соответствующие элементы.
-        const userWords = [];
 
+        // если выбран checkbox показывать только повторение то берутся без разбора начиная с самых ранних повторений
+        // если выбран вперемежку тогда берутся из повторения только те которые должны повторятся только сегодня.
+
+        const userWords = [];
         const words = sessionStorage.getItem('userAllStudyWords');
         if (words) {
             this.allStudyWords = JSON.parse(words);
@@ -357,11 +381,35 @@ export default class Main {
         }
         const allWords = [...book1, ...book2, ...book3, ...book4, ...book5, ...book6];
 
-        for (let i = 0, count = 0; i < allWords.length && count < this.settings.maxWords; i += 1) {
-            this.nextNewWord += 1;
-            if (!userWords.includes(allWords[i].word)) {
-                this.listToday.push(allWords[i]);
+        const max = +this.settings.maxWords;
+        if (this.settings.listNew) {
+            this.addToList(max, userWords, allWords, true, false);
+        } else if (this.settings.listRepeat) {
+            this.addToList(max, userWords, allWords, false, false);
+        } else if (this.settings.listAlternately) {
+            this.addToList(max, userWords, allWords, false, true);
+        }
+    }
+
+    addToList(max, userWords, allWords, onlyNew, alternately) {
+        // протестировать после создания списка слов с указанными интервалами повторения
+        // соответственно надо будет добавить сортировку по интервалам.
+        let count = 0;
+        if (!onlyNew) {
+            let repeatWords = max;
+            if (alternately) repeatWords = max - this.settings.newWords;
+            for (let i = 0; i < userWords.length && count < repeatWords; i += 1) {
+                this.listToday.push(userWords[i]);
                 count += 1;
+            }
+        }
+        if (max > this.listToday.length) {
+            for (let i = this.nextNewWord; i < allWords.length && count < max; i += 1) {
+                this.nextNewWord += 1;
+                if (!userWords.includes(allWords[i].word)) {
+                    this.listToday.push(allWords[i]);
+                    count += 1;
+                }
             }
         }
     }
@@ -387,7 +435,9 @@ export default class Main {
         const elements = document.getElementsByName(name);
         for (let i = 0; i < elements.length; i += 1) {
             if (elements[i].checked) {
-                this.settings[name] = elements[i].id;
+                this.settings[elements[i].id] = true;
+            } else {
+                this.settings[elements[i].id] = false;
             }
         }
     }
@@ -398,19 +448,14 @@ export default class Main {
             this.settings = JSON.parse(json);
             const keys = Object.keys(this.settings);
             keys.forEach((item) => {
-                document.getElementById('item').value = this.settings[item];
+                document.getElementById(item).value = this.settings[item];
             });
         } else {
-            this.getCheckRadio('answer');
-            this.getCheckRadio('remove');
-            this.getCheckRadio('difficult');
-            this.getCheckRadio('list');
-            this.getCheckRadio('interval');
-            this.getCheckRadio('audio');
-            this.settings.transcription = document.getElementById('transcription').value;
-            this.settings.imagesWords = document.getElementById('imagesWords').value;
-            this.settings.explanationWords = document.getElementById('explanationWords').value;
-            this.settings.sentenceWords = document.getElementById('sentenceWords').value;
+            this.getCheckRadio('listType');
+            const checkBoxes = document.querySelectorAll('[type=checkbox]');
+            Array.from(checkBoxes).forEach((item) => {
+                this.settings[item.id] = item.checked;
+            });
             this.settings.newWords = document.getElementById('newWords').value;
             this.settings.maxWords = document.getElementById('maxWords').value;
         }
@@ -420,6 +465,7 @@ export default class Main {
         // проверка всех настроек
         // взять из seasonStorage данные по текущим словам, там должн быть данные по количеству пройденых слов
         // на текущий день, которые занесутся в левый span в блоке range, максимальное количесов в правый.
+        // sentenceWords" />explanationWords" />imagesWords" />transcription" />translate
         if (document.getElementById('maxWords').value === this.passedToday) {
             document.getElementById('card').classList.add('hide');
             document.getElementById('message').classList.add('show');
@@ -427,11 +473,40 @@ export default class Main {
             if (next && !this.currentMistake) this.cardIndex += 1;
             this.currentMistake = false;
             const word = this.listToday[this.cardIndex];
-            document.getElementById('cardImg').src = word.image;
-            document.getElementById('cardMeaning').innerHTML = word.textMeaning;
-            document.getElementById('cardExample').innerHTML = word.textExample;
-            document.getElementById('translationWord').innerHTML = await this.getTranslation(word.word);
-            document.getElementById('transcriptionWord').innerHTML = word.transcription;
+            if (this.settings.removeWord) {
+                document.getElementById('cardRemove').classList.remove('hide');
+            } else {
+                document.getElementById('cardRemove').classList.add('hide');
+            }
+            if (this.settings.showAnswer) {
+                document.getElementById('cardShow').classList.remove('hide');
+            } else {
+                document.getElementById('cardShow').classList.add('hide');
+            }
+            if (this.settings.numberLetters && this.cardIndex === this.passedToday) {
+                this.input.setAttribute('maxlength', word.word.length);
+                this.incorrectWord('', '*'.repeat(word.word.length));
+            } else {
+                this.input.setAttribute('maxlength', 80);
+            }
+            if (this.settings.imgWord) {
+                document.getElementById('cardImg').classList.remove('hide');
+                document.getElementById('cardImg').src = word.image;
+            } else {
+                document.getElementById('cardImg').classList.add('hide');
+            }
+            if (this.settings.meaningWord) {
+                document.getElementById('cardMeaning').innerHTML = word.textMeaning;
+            }
+            if (this.settings.exampleWord) {
+                document.getElementById('cardExample').innerHTML = word.textExample;
+            }
+            if (this.settings.transcription) {
+                document.getElementById('transcriptionWord').innerHTML = word.transcription;
+            }
+            if (this.settings.translate) {
+                document.getElementById('translationWord').innerHTML = await this.getTranslation(word.word);
+            }
             this.changeRange(false);
         }
     }
@@ -453,19 +528,38 @@ export default class Main {
 
         if (showAnswer || prev) {
             this.input.value = word.word;
-            const meaning = await this.getTranslation(word.textMeaning.replace('<i>', ''));
-            document.getElementById('cardMeaningTranslation').innerHTML = meaning;
-            const example = await this.getTranslation(word.textExample.replace('<b>', ''));
-            document.getElementById('cardExampleTranslation').innerHTML = example;
-            document.getElementById('translationWord').innerHTML = await this.getTranslation(word.word);
+            if (this.settings.meaningWord) {
+                const meaning = await this.getTranslation(word.textMeaning.replace('<i>', ''));
+                document.getElementById('cardMeaningTranslation').innerHTML = meaning;
+            }
+            if (this.settings.exampleWord) {
+                const example = await this.getTranslation(word.textExample.replace('<b>', ''));
+                document.getElementById('cardExampleTranslation').innerHTML = example;
+            }
+            if (this.settings.removeWord) {
+                document.getElementById('cardRemove').classList.remove('hide');
+            } else {
+                document.getElementById('cardRemove').classList.add('hide');
+            }
+            if (this.settings.showAnswer) {
+                document.getElementById('cardShow').classList.remove('hide');
+            } else {
+                document.getElementById('cardShow').classList.add('hide');
+            }
+
             document.getElementById('cardPlay').classList.add('show');
             document.getElementById('cardRight').classList.add('go-next');
             if (showAnswer) {
-                // this.playWord();
+                if (this.settings.sound) {
+                    this.playWord();
+                }
                 this.input.setAttribute('readonly', 'readonly');
                 this.input.classList.add('correct-color');
+                document.getElementById('cardShow').classList.add('lock-element');
                 document.getElementById('cardRemove').classList.add('lock-element');
-                document.getElementById('intervalBtns').classList.add('show');
+                if (this.settings.interval) {
+                    document.getElementById('intervalBtns').classList.add('show');
+                }
                 this.newConsecutive += 1;
                 this.correctAnswer += 1;
                 if (this.newConsecutive > this.consecutive) this.consecutive = this.newConsecutive;
@@ -511,10 +605,16 @@ export default class Main {
         playExample.src = word.audioExample;
         playWord.play();
         playWord.onended = () => {
-            playMeaning.play();
+            if (this.settings.meaningWord) {
+                playMeaning.play();
+            } else if (this.settings.exampleWord) {
+                playExample.play();
+            }
         };
         playMeaning.onended = () => {
-            playExample.play();
+            if (this.settings.exampleWord) {
+                playExample.play();
+            }
         };
     }
 
@@ -548,6 +648,7 @@ export default class Main {
 
     clearCard() {
         document.getElementById('cardRemove').classList.remove('lock-element');
+        document.getElementById('cardShow').classList.remove('lock-element');
         document.getElementById('intervalBtns').classList.remove('show');
         document.getElementById('cardMeaningTranslation').innerHTML = '';
         document.getElementById('cardExampleTranslation').innerHTML = '';

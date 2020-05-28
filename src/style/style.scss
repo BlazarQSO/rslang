@@ -134,12 +134,16 @@
             width: 100%;
             outline: none;
             padding-left: 8px;
+            font-family: Courier New, monospace;
+            font-weight: 700;
         }
         &-correct {
             position: absolute;
             left: 10px;
             top: 11px;
             font-size: 24px;
+            font-family: Courier New, monospace;
+            font-weight: 700;
         }
     }
     &__translation {
@@ -157,7 +161,7 @@
     &__answer {
         margin-top: 10px;
         display: flex;
-        justify-content: space-between;
+        justify-content: space-around;
         width: 300px;
 
         button {
@@ -170,6 +174,7 @@
     &__answer {
         button {
             width: 120px;
+            height: 40px;
         }
     }
     &__range {
