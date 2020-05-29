@@ -54,6 +54,10 @@
     </section>
     <section class="statistics" id="statistics">
         <h2 class="statistics__title">Statistics</h2>
+        <div class="buttons">
+            <button class="buttons__btn" id="repeat">Repeat difficult words</button>
+            <button class="buttons__btn" id="reset">Reset</button>
+        </div>
         <table class="statistics__table">
             <thead>
                 <tr>
@@ -69,10 +73,98 @@
             <tbody id="tbody">
             </tbody>
         </table>
+    </section>
+    <section class="dictionary" id="dictionary">
+        <h2 class="dictionary__title">Dictionary bookmarks</h2>
         <div class="buttons">
-            <button class="buttons__btn" id="repeat">Repeat difficult words</button>
-            <button class="buttons__btn" id="reset">Reset</button>
+            <button class="buttons__btn" id="study">Study</button>
+            <button class="buttons__btn" id="difficult">Difficult</button>
+            <button class="buttons__btn" id="remove">Remove</button>
+            <button class="buttons__btn" id="learned">Learned</button>
         </div>
+        <h3 class="dictionary__title">Sort by</h3>
+        <div class="buttons">
+            <button class="buttons__btn" id="study">English</button>
+            <button class="buttons__btn" id="learned">Russian</button>
+            <button class="buttons__btn" id="difficult">Time</button>
+            <button class="buttons__btn" id="remove">Rating</button>
+        </div>
+        <ul class="list" id="listDictionary">
+            <li>
+                <div class="list__word">
+                    <span class="list__word-item">word</span>
+                    <span class="list__word-transcription">[word]</span>
+                    <button class="list__sound" id="wordSound1"></button>
+                </div>
+                <div class="list__translate">
+                    <span class="list__translate-item">слово</span>
+                    <img class="list__translate-img" id="wordImg1" src="src/img/default.jpg" alt="" />
+                </div>
+                <div class="list__meaning">
+                    <span class="list__meaning-item">the word is a part of speech</span>
+                    <button class="list__sound" id="meaningSound1"></button>
+                </div>
+                <div class="list__example">
+                    <span class="list__example-item">I said the word</span>
+                    <button class="list__sound" id="exampleSound1"></button>
+                </div>
+                <div class="list__time">
+                    <span class="list__time-last">Last Time:</span>
+                    <span class="list__time-date" id="timeLast1">29-05-2020:16:30</span>
+                    <span class="list__time-next">Next Time:</span>
+                    <span class="list__time-date" id="timeNext1">05-06-2020:16:30</span>
+                </div>
+                <div class="list__rating">
+                    <span class="list__rating-discript">Repeat:</span>
+                    <span class="list__rating-count">6</span>
+                    <span class="list__rating-discript">Rating:</span>
+                    <div class="list__rating-visual">
+                        <span class="list__rating-color1 list__rating-bg"></span>
+                        <span class="list__rating-color2"></span>
+                        <span class="list__rating-color3"></span>
+                        <span class="list__rating-color4"></span>
+                        <span class="list__rating-color5"></span>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="list__word">
+                    <span class="list__word-item">word</span>
+                    <span class="list__word-transcription">[word]</span>
+                    <button class="list__sound" id="wordSound1"></button>
+                </div>
+                <div class="list__translate">
+                    <span class="list__translate-item">слово</span>
+                    <img class="list__translate-img" id="wordImg1" src="src/img/default.jpg" alt="" />
+                </div>
+                <div class="list__meaning">
+                    <span class="list__meaning-item">the word is a part of speech</span>
+                    <button class="list__sound" id="meaningSound1"></button>
+                </div>
+                <div class="list__example">
+                    <span class="list__example-item">I said the word</span>
+                    <button class="list__sound" id="exampleSound1"></button>
+                </div>
+                <div class="list__time">
+                    <span class="list__time-last">Last Time:</span>
+                    <span class="list__time-last" id="timeLast1">29-05-2020:16:30</span>
+                    <span class="list__time-next">Next Time:</span>
+                    <span class="list__time-next" id="timeNext1">05-06-2020:16:30</span>
+                </div>
+                <div class="list__rating">
+                    <span class="list__rating-discript">Repeat:</span>
+                    <span class="list__rating-count">6</span>
+                    <span class="list__rating-discript">Rating:</span>
+                    <div class="list__rating-visual">
+                        <span class="list__rating-color1 list__rating-bg"></span>
+                        <span class="list__rating-color2"></span>
+                        <span class="list__rating-color3"></span>
+                        <span class="list__rating-color4"></span>
+                        <span class="list__rating-color5"></span>
+                    </div>
+                </div>
+            </li>
+        </ul>
     </section>
     <section class="settings" id="settings">
         <h2 class="settings__title">Settings</h2>

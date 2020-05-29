@@ -1,0 +1,137 @@
+.dictionary {
+    display: none;
+    background-color: whitesmoke;
+
+    &__title {
+        text-align: center;
+        text-shadow: 1px 1px 1px gray, -1px 1px 1px gray;
+        margin: 0;
+        padding-top: 20px;
+    }
+}
+
+.list {
+    list-style: none;
+    width: 80%;
+    padding: 0;
+    margin: 0;
+    padding-bottom: 30px;
+    margin: 0 auto;
+    border-top: 1px solid gray;
+
+    li {
+        border-bottom: 1px solid gray;
+        background-image: linear-gradient(#f1ede5, transparent);
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    div {
+        display: flex;
+        justify-content: space-between;
+        font-size: 26px;
+        border-top: 1px solid rgba(0,0,0,0.06);
+        height: 50px;
+        align-items: center;
+    }
+    &__sound {
+        width: 40px;
+        height: 40px;
+        align-self: center;
+        border: none;
+        background: none;
+        background-image: url("../img/speaker.png");
+        background-size: cover;
+    }
+    &__word {
+        border-top: none !important;
+
+        &-item {
+            font-size: 32px;
+        }
+        &-transcription {
+            color: green;
+        }
+    }
+    &__translate {
+        position: relative;
+        width: 100%;
+        height: 50px;
+
+        &-item {
+            color: grey;
+            font-size: 32px;
+        }
+        &-img {
+            position: absolute;
+            width: 75px;
+            height: 50px;
+            transition: 0.5s;
+            right: 0;
+        }
+        &-img:hover {
+            width: 300px;
+            height: 200px;
+        }
+    }
+    &__meaning {
+        &-item {
+            color: brown;
+        }
+    }
+    &__example {
+        &-item {
+            color: rgb(23, 23, 172);
+        }
+    }
+    &__time {
+        &-last {
+            color: coral;
+        }
+        &-next {
+            color: coral;
+        }
+        &-date {
+            color: darkgoldenrod;
+        }
+    }
+    &__rating {
+        &-discript {
+            color: #46a99f;
+        }
+        &-count {
+            color: green;
+        }
+        &-visual {
+            span {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                align-self: center;
+            }
+        }
+
+        &-color1 {
+            border: 2px solid red;
+            background-color: red;
+        }
+        &-color2 {
+            border: 2px solid orange;
+            background-color: orange;
+        }
+        &-color3 {
+            border: 2px solid rgb(129, 167, 129);
+            background-color: rgb(129, 167, 129);
+        }
+        &-color4 {
+            border: 2px solid rgb(54, 163, 54);
+            background-color: rgb(54, 163, 54);
+        }
+        &-color5 {
+            border: 2px solid rgb(0, 199, 0);
+            background-color: rgb(0, 199, 0);
+        }
+        &-bg {
+            background-color: whitesmoke;
+        }
+    }
+}

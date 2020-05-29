@@ -1,5 +1,6 @@
 import Statistics from '../statistics/statistics';
 import Main from '../main/main';
+import Dictionary from '../dictionary/dictionary';
 
 function eventNav(e) {
     if (e.target.tagName === 'LI') {
@@ -9,10 +10,14 @@ function eventNav(e) {
             mainPage.classList.remove('hide');
             (new Main()).createCard();
         } else if (e.target.id === 'liStatistics') {
-            mainPage.innerHTML = '';
+            // mainPage.innerHTML = '';
             mainPage.classList.add('hide');
             new Statistics().create();
             document.getElementById('statistics').classList.add('show');
+        } if (e.target.id === 'liDictionary') {
+            mainPage.classList.add('hide');
+            document.getElementById('dictionary').classList.add('show');
+            new Dictionary().create();
         }
 
         const list = document.getElementById('list');
