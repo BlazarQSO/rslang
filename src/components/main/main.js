@@ -8,8 +8,8 @@ import book6 from '../../data/book6';
 export default class Main {
     constructor() {
         this.data = [];
-        this.settings = {};
         this.listToday = [];
+        this.allStudyWords = [];
         this.cardIndex = 0;
         this.nextNewWord = 0;
         this.consecutive = 0;
@@ -18,9 +18,15 @@ export default class Main {
         this.correctAnswer = 0;
         this.incorrectAnswer = 0;
         this.currentMistake = false;
+        this.next = false;
         this.allStudyWords = [];
-        this.checkCreateListFn();
-        this.setSettings();
+        this.settings = localStorage.getItem('settings');
+        this.getTodayStatStorage();
+        if (this.settings) {
+            this.setSettings();
+        } else {
+            this.getSettings();
+        }
     }
 
     createCard() {
@@ -137,7 +143,14 @@ export default class Main {
         this.input = document.getElementById('inputWord');
         this.input.focus();
         this.createList();
-        this.setWordInCard();
+        if (this.listToday.length !== this.passedToday) {
+            this.setWordInCard();
+        } else {
+            document.getElementById('card').classList.add('hide');
+            document.getElementById('message').classList.add('show');
+            this.inputTodayStatistics();
+        }
+
         this.createEvent();
     }
 
@@ -209,42 +222,13 @@ export default class Main {
         return wrapper || this.blank;
     }
 
-    checkCreateListFn() {
+    getTodayStatStorage() {
         let date = new Date();
-        date = `${date.getDate()}${(date.getMonth + 1)}${date.getFullYear}`;
-        this.checkCreateList = localStorage.getItem('listDay') === date;
-        // статистику сделать в одну строку с id = todayStat, разделённые запятыми,
-        // split(',') создать массив и диструкторизацией передать значения в нужные переменные.
-        // елси новый день тогда '0,0,0,0...'
+        date = `${date.getDate()}${(date.getMonth() + 1)}${date.getFullYear()}`;
+        this.checkCreateList = localStorage.getItem('lastDate') === date;
+        localStorage.setItem('lastDate', date);
+        this.listToday = JSON.parse(localStorage.getItem('listToday'));
         if (!this.checkCreateList) {
-            localStorage.setItem('passedToday', 0);
-            this.passedToday = 0;
-            localStorage.setItem('newWordsToday', 0);
-            this.newWordsToday = 0;
-            localStorage.setItem('consecutive', 0);
-            this.consecutive = 0;
-            localStorage.setItem('newConsecutive', 0);
-            this.newConsecutive = 0;
-            localStorage.setItem('correctAnswer', 0);
-            this.correctAnswer = 0;
-            localStorage.setItem('incorrectAnswer', 0);
-            this.incorrectAnswer = 0;
-        } else {
-            this.passedToday = +(localStorage.getItem('passedToday') || '0');
-            this.newWordsToday = +(localStorage.getItem('newWordsToday') || '0');
-            this.consecutive = +(localStorage.getItem('consecutive') || '0');
-            this.newConsecutive = +(localStorage.getItem('newConsecutive') || '0');
-            this.correctAnswer = +(localStorage.getItem('correctAnswer') || '0');
-            this.incorrectAnswer = +(localStorage.getItem('incorrectAnswer') || '0');
-        }
-    }
-
-    createEvent() {
-        document.getElementById('addition').onclick = () => {
-            document.getElementById('message').classList.remove('show');
-            document.getElementById('card').classList.remove('hide');
-            document.getElementById('intervalBtns').classList.add('show');
-            this.setSettings();
             this.passedToday = 0;
             this.cardIndex = 0;
             this.newWordsToday = 0;
@@ -252,6 +236,56 @@ export default class Main {
             this.newConsecutive = 0;
             this.correctAnswer = 0;
             this.incorrectAnswer = 0;
+            this.generatedListToday = false;
+            this.currentMistake = false;
+            this.setTodayStatStorage();
+        } else {
+            [
+                this.passedToday,
+                this.cardIndex,
+                this.newWordsToday,
+                this.consecutive,
+                this.newConsecutive,
+                this.correctAnswer,
+                this.incorrectAnswer,
+                this.generatedListToday,
+                this.currentMistake,
+            ] = (localStorage.getItem('todayTraining') || '0,0,0,0,0,0,0,false,false').split(',').map((item) => {
+                if (item === 'false') return false;
+                if (item === 'true') return true;
+                return +item;
+            });
+        }
+    }
+
+    setTodayStatStorage() {
+        localStorage.setItem('todayTraining', [
+            this.passedToday,
+            this.passedToday,
+            this.newWordsToday,
+            this.consecutive,
+            this.newConsecutive,
+            this.correctAnswer,
+            this.incorrectAnswer,
+            this.generatedListToday,
+            this.currentMistake,
+        ].join(','));
+        localStorage.setItem('listToday', JSON.stringify(this.listToday));
+    }
+
+    createEvent() {
+        document.getElementById('addition').onclick = () => {
+            document.getElementById('message').classList.remove('show');
+            document.getElementById('card').classList.remove('hide');
+            document.getElementById('intervalBtns').classList.add('show');
+            this.passedToday = 0;
+            this.cardIndex = 0;
+            this.newWordsToday = 0;
+            this.consecutive = 0;
+            this.newConsecutive = 0;
+            this.correctAnswer = 0;
+            this.incorrectAnswer = 0;
+            this.generatedListToday = false;
             this.listToday = [];
             this.createList();
             this.setWordInCard();
@@ -259,7 +293,6 @@ export default class Main {
         document.getElementById('cardLeft').onclick = () => {
             if (this.cardIndex > 0) {
                 this.setAnswerInCard('left');
-                this.setSettings();
                 this.input.setAttribute('readonly', 'readonly');
                 this.input.classList.add('correct-color');
                 const cardCorrect = document.getElementById('cardCorrect');
@@ -267,6 +300,7 @@ export default class Main {
                 cardCorrect.classList.remove('opacity-correct');
                 document.getElementById('cardRemove').classList.add('lock-element');
                 document.getElementById('cardShow').classList.add('lock-element');
+                document.getElementById('intervalBtns').classList.remove('show');
             }
         };
         document.getElementById('cardPlay').onclick = this.playWord.bind(this);
@@ -291,6 +325,34 @@ export default class Main {
             }
         };
 
+        document.getElementById('cardDiff').onclick = () => {
+            const word = this.listToday[this.cardIndex];
+            const INTERVAL_FACTOR = 1;
+            this.updateAllStudyWords(word, false, true, false, false, INTERVAL_FACTOR, 'difficult');
+        };
+        document.getElementById('cardGood').onclick = () => {
+            const word = this.listToday[this.cardIndex];
+            const INTERVAL_FACTOR = 3;
+            this.updateAllStudyWords(word, false, true, false, false, INTERVAL_FACTOR, 'study');
+        };
+        document.getElementById('cardEasy').onclick = () => {
+            const word = this.listToday[this.cardIndex];
+            const INTERVAL_FACTOR = 5;
+            this.updateAllStudyWords(word, false, true, false, false, INTERVAL_FACTOR, 'study');
+        };
+        // document.getElementById('cardRemove').onclick = () => {
+        //     const word = this.listToday[this.cardIndex];
+        //     const INTERVAL_FACTOR = 0;
+        //     this.updateAllStudyWords(word, false, true, false, false, INTERVAL_FACTOR, 'remove');
+        // };
+
+        document.getElementById('settings').onchange = (e) => {
+            if (e.target.tagName === 'INPUT') {
+                this.getSettings();
+                localStorage.setItem('settings', JSON.stringify(this.settings));
+            }
+        };
+
         const idChecks = ['translate', 'transcription', 'imgWord', 'meaningWord', 'exampleWord'];
         idChecks.forEach((item) => {
             document.getElementById(item).onclick = () => {
@@ -302,10 +364,9 @@ export default class Main {
     }
 
     eventRight() {
-        this.setSettings();
         const right = document.getElementById('cardRight');
         if (right.classList.contains('go-next')
-            && this.cardIndex + 1 === (this.passedToday + Number(this.currentMistake))) {
+            && this.cardIndex + 1 === (this.passedToday + Number(this.next))) {
             right.classList.remove('go-next');
             this.clearCard();
             if (this.passedToday === +document.getElementById('maxWords').value) {
@@ -316,7 +377,7 @@ export default class Main {
                 this.setWordInCard(true);
             }
         } else if (this.cardIndex === this.passedToday) {
-            this.setAnswerInCard();
+            this.setAnswerInCard(false);
         } else {
             this.setAnswerInCard('right');
         }
@@ -328,24 +389,33 @@ export default class Main {
         // тогда добавлять из списка на повторение и не увеличивать nextNewWord.
 
         if (!document.getElementById('cardRemove').classList.contains('lock-element')) {
-            this.listToday.splice(this.cardIndex, 1);
+            const removeWord = this.listToday.splice(this.cardIndex, 1);
+            const INTERVAL_FACTOR = 0;
+            if (this.allStudyWords.find((item) => item.word === removeWord.word.toLowerCase())) {
+                this.updateAllStudyWords(removeWord, false, true, false, false, INTERVAL_FACTOR, 'remove');
+            } else {
+                this.nextNewWord += 1;
+                this.updateAllStudyWords(removeWord, true, false, false, false, INTERVAL_FACTOR, 'remove');
+            }
             let allWords = [...book1, ...book2, ...book3, ...book4, ...book5, ...book6];
             this.listToday.push(allWords[this.nextNewWord]);
-            this.nextNewWord += 1;
             allWords = null;
             this.setWordInCard();
         }
+        this.setTodayStatStorage();
     }
 
     eventCardAgain() {
-        if (!this.currentMistake) {
+        if (!document.getElementById('cardAgain').classList.contains('lock-element')) {
+            document.getElementById('cardAgain').classList.add('lock-element');
             const answer = this.input.value.toLowerCase();
-            if (!this.allStudyWords.includes(answer)) this.newWordsToday -= 1;
+            if (!this.allStudyWords.find((item) => item.word === answer)) this.newWordsToday -= 1;
             const cutWord = this.listToday.splice(this.cardIndex, 1)[0];
             this.listToday.push(cutWord);
-            this.currentMistake = true;
             this.passedToday -= 1;
+            this.next = true;
             this.changeRange(false);
+            this.setTodayStatStorage();
         }
     }
 
@@ -373,40 +443,48 @@ export default class Main {
         // если выбран checkbox показывать только повторение то берутся без разбора начиная с самых ранних повторений
         // если выбран вперемежку тогда берутся из повторения только те которые должны повторятся только сегодня.
 
-        const userWords = [];
-        const words = sessionStorage.getItem('userAllStudyWords');
-        if (words) {
-            this.allStudyWords = JSON.parse(words);
-            // userWords = [...this.allStudyWords.learning, ...this.allStudyWords.diff, ...this.allStudyWords.del];
-        }
-        const allWords = [...book1, ...book2, ...book3, ...book4, ...book5, ...book6];
+        // Если указано миксовать то в качестве повтора идут слова, чей срок подошёл к повторению
+        // Но можно также принудительно добавлять для повторения если указан микс.
+        // Если указано только повторы, то слова собираются принудительно не дожидаясь их срока повтора
+        // Если слово было неверно отвечено в мини игре тогда nextTime = 0; и при сортировке будут вприоритете.
 
-        const max = +this.settings.maxWords;
-        if (this.settings.listNew) {
-            this.addToList(max, userWords, allWords, true, false);
-        } else if (this.settings.listRepeat) {
-            this.addToList(max, userWords, allWords, false, false);
-        } else if (this.settings.listAlternately) {
-            this.addToList(max, userWords, allWords, false, true);
+        if (!this.generatedListToday) {
+            this.listToday = [];
+            const userWords = localStorage.getItem('userAllStudyWords');
+            if (userWords) {
+                this.allStudyWords = JSON.parse(userWords);
+                this.allStudyWords.sort((a, b) => a.nextTime - b.nextTime);
+            }
+            const allWords = [...book1, ...book2, ...book3, ...book4, ...book5, ...book6];
+            this.nextNewWord = this.allStudyWords.length;
+            const max = +this.settings.maxWords;
+            if (this.settings.listNew) {
+                this.addToList(max, allWords, true, false);
+            } else if (this.settings.listRepeat) {
+                this.addToList(max, allWords, false, false);
+            } else if (this.settings.listAlternately) {
+                this.addToList(max, allWords, false, true);
+            }
+            this.generatedListToday = true;
         }
     }
 
-    addToList(max, userWords, allWords, onlyNew, alternately) {
+    addToList(max, allWords, onlyNew, alternately) {
         // протестировать после создания списка слов с указанными интервалами повторения
         // соответственно надо будет добавить сортировку по интервалам.
         let count = 0;
         if (!onlyNew) {
             let repeatWords = max;
             if (alternately) repeatWords = max - this.settings.newWords;
-            for (let i = 0; i < userWords.length && count < repeatWords; i += 1) {
-                this.listToday.push(userWords[i]);
+            for (let i = 0; i < this.allStudyWords.length && count < repeatWords; i += 1) {
+                this.listToday.push(this.allStudyWords[i]);
                 count += 1;
             }
         }
         if (max > this.listToday.length) {
             for (let i = this.nextNewWord; i < allWords.length && count < max; i += 1) {
                 this.nextNewWord += 1;
-                if (!userWords.includes(allWords[i].word)) {
+                if (!this.allStudyWords.includes(allWords[i].word)) {
                     this.listToday.push(allWords[i]);
                     count += 1;
                 }
@@ -443,22 +521,24 @@ export default class Main {
     }
 
     setSettings() {
-        const json = sessionStorage.getItem('settings');
-        if (json) {
-            this.settings = JSON.parse(json);
-            const keys = Object.keys(this.settings);
-            keys.forEach((item) => {
-                document.getElementById(item).value = this.settings[item];
-            });
-        } else {
-            this.getCheckRadio('listType');
-            const checkBoxes = document.querySelectorAll('[type=checkbox]');
-            Array.from(checkBoxes).forEach((item) => {
-                this.settings[item.id] = item.checked;
-            });
-            this.settings.newWords = document.getElementById('newWords').value;
-            this.settings.maxWords = document.getElementById('maxWords').value;
-        }
+        this.settings = JSON.parse(this.settings);
+        const keys = Object.keys(this.settings);
+        keys.forEach((item) => {
+            document.getElementById(item).checked = this.settings[item];
+        });
+        document.getElementById('newWords').value = this.settings.newWords;
+        document.getElementById('maxWords').value = this.settings.maxWords;
+    }
+
+    getSettings() {
+        this.settings = {};
+        this.getCheckRadio('listType');
+        const checkBoxes = document.querySelectorAll('[type=checkbox]');
+        Array.from(checkBoxes).forEach((item) => {
+            this.settings[item.id] = item.checked;
+        });
+        this.settings.newWords = document.getElementById('newWords').value;
+        this.settings.maxWords = document.getElementById('maxWords').value;
     }
 
     async setWordInCard(next) {
@@ -470,7 +550,9 @@ export default class Main {
             document.getElementById('card').classList.add('hide');
             document.getElementById('message').classList.add('show');
         } else {
-            if (next && !this.currentMistake) this.cardIndex += 1;
+            const again = document.getElementById('cardAgain').classList.contains('lock-element');
+            document.getElementById('cardAgain').classList.remove('lock-element');
+            if (next && !again && !this.next) this.cardIndex += 1;
             this.currentMistake = false;
             const word = this.listToday[this.cardIndex];
             if (this.settings.removeWord) {
@@ -508,11 +590,12 @@ export default class Main {
                 document.getElementById('translationWord').innerHTML = await this.getTranslation(word.word);
             }
             this.changeRange(false);
+            this.next = false;
         }
+        this.setTodayStatStorage();
     }
 
     async setAnswerInCard(prev) {
-        // применить ко всем добавляемым значением настройки
         if (prev === 'left') {
             this.cardIndex -= 1;
             await this.setWordInCard(false);
@@ -563,27 +646,38 @@ export default class Main {
                 this.newConsecutive += 1;
                 this.correctAnswer += 1;
                 if (this.newConsecutive > this.consecutive) this.consecutive = this.newConsecutive;
+                if (this.allStudyWords.find((item) => item.word === answer) && !prev) {
+                    this.updateAllStudyWords(word, false, true, true, false);
+                } else {
+                    this.newWordsToday += 1;
+                    this.updateAllStudyWords(word, true, false, true, false, false, 'study');
+                }
                 if (!this.currentMistake) {
-                    if (!this.allStudyWords.includes(answer)) this.newWordsToday += 1;
                     this.changeRange(true);
                 } else {
                     const cutWord = this.listToday.splice(this.cardIndex, 1)[0];
                     this.listToday.push(cutWord);
                 }
+                if (this.currentMistake) this.next = true;
+                this.currentMistake = false;
             }
         } else {
             this.currentMistake = true;
             this.newConsecutive = 0;
             this.incorrectAnswer += 1;
+            if (this.allStudyWords.find((item) => item.word === word.word) && !prev) {
+                this.updateAllStudyWords(word, false, true, true, true);
+            } else {
+                this.newWordsToday += 1;
+                this.updateAllStudyWords(word, true, false, true, true, false, 'study');
+            }
             this.incorrectWord(answer, word.word);
         }
+        this.setTodayStatStorage();
     }
 
     changeRange(next) {
-        if (next) {
-            this.passedToday += 1;
-            localStorage.setItem('passedToday', this.passedToday);
-        }
+        if (next) this.passedToday += 1;
         document.getElementById('firstNumber').innerHTML = this.passedToday;
         const secondNumber = document.getElementById('maxWords').value;
         document.getElementById('secondNumber').innerHTML = secondNumber;
@@ -594,8 +688,6 @@ export default class Main {
     }
 
     playWord() {
-        // проверить настройками какой текст воспроизводить
-        // также дополнить порядок воспроизведения если некоторые опции отключены
         const word = this.listToday[this.cardIndex];
         const playWord = new Audio();
         playWord.src = word.audio;
@@ -671,5 +763,63 @@ export default class Main {
             .innerHTML = `${Math.floor((this.correctAnswer / (this.incorrectAnswer + this.correctAnswer)) * 100)}%`;
         document.getElementById('statNewWords').innerHTML = this.newWordsToday;
         document.getElementById('statLong').innerHTML = this.consecutive;
+        this.generatedListToday = false;
+        this.listToday = [];
+    }
+
+    updateAllStudyWords(word, isNew, isUpdate, isCount, mistake, customRating, state) {
+        const DAY_INTERVAL = 5;
+        const DAY = 60 * 60 * 24 * 1000;
+        if (isNew) {
+            word.count = 1;
+            word.mistakes = Number(mistake);
+            word.state = state; // study|difficult|remove|learned
+            word.customRating = customRating; // undefine|complexity|normal|easy (false|1|3|5)
+            word.rating = this.getRating(word.count, word.mistakes);
+            word.lastTime = new Date().getTime();
+
+            if (customRating) {
+                word.nextTime = word.lastTime + customRating * DAY * DAY_INTERVAL;
+            } else {
+                word.nextTime = word.lastTime + word.rating * DAY * DAY_INTERVAL;
+            }
+            this.allStudyWords.push(word);
+        } else if (isUpdate) {
+            const index = this.allStudyWords.findIndex((item) => item.word === word.word);
+            if (isCount) this.allStudyWords[index].count += 1;
+            if (mistake) this.allStudyWords[index].mistakes += 1;
+            if (state) this.allStudyWords[index].state = state;
+            if (customRating) this.allStudyWords[index].customRating = customRating;
+            const counts = this.allStudyWords[index].count;
+            const { mistakes } = this.allStudyWords[index];
+            this.allStudyWords[index].rating = this.getRating(counts, mistakes);
+            this.allStudyWords[index].lastTime = new Date().getTime();
+
+            if (this.allStudyWords[index].customRating) {
+                const delta = this.allStudyWords[index].customRating * DAY * DAY_INTERVAL;
+                this.allStudyWords[index].nextTime = this.allStudyWords[index].lastTime + delta;
+            } else {
+                const delta = this.allStudyWords[index].rating * DAY * DAY_INTERVAL;
+                this.allStudyWords[index].nextTime = this.allStudyWords[index].lastTime + delta;
+            }
+        }
+        localStorage.setItem('userAllStudyWords', JSON.stringify(this.allStudyWords));
+    }
+
+    getRating(count, mistakes) {
+        let rating = 1;
+        try {
+            const correctPercent = (1 - mistakes / count) * 100;
+            if (correctPercent >= 20 && correctPercent < 40) {
+                rating = 2;
+            } else if (correctPercent >= 40 && correctPercent < 65) {
+                rating = 3;
+            } else if (correctPercent >= 65 && correctPercent < 90) {
+                rating = 4;
+            } else if (correctPercent >= 90) rating = 5;
+        } catch (error) {
+            this.error = error.message;
+        }
+        return rating;
     }
 }

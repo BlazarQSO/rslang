@@ -6,7 +6,7 @@ window.addEventListener('load', () => {
     header();
     const main = new Main();
     main.createCard();
-    if (main.checkCreateList) main.createList();
+    // if (main.checkCreateList) main.createList();
 
     document.body.addEventListener('click', (e) => {
         const nav = document.getElementById('nav');
