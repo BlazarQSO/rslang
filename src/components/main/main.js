@@ -9,7 +9,6 @@ export default class Main {
     constructor() {
         this.data = [];
         this.listToday = [];
-        this.allStudyWords = [];
         this.cardIndex = 0;
         this.nextNewWord = 0;
         this.consecutive = 0;

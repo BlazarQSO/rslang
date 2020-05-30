@@ -29,7 +29,7 @@
         display: flex;
         justify-content: space-between;
         font-size: 26px;
-        border-top: 1px solid rgba(0,0,0,0.06);
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
         height: 50px;
         align-items: center;
     }
@@ -123,8 +123,8 @@
             background-color: rgb(129, 167, 129);
         }
         &-color4 {
-            border: 2px solid rgb(54, 163, 54);
-            background-color: rgb(54, 163, 54);
+            border: 2px solid #338733;
+            background-color: #338733;
         }
         &-color5 {
             border: 2px solid rgb(0, 199, 0);
@@ -133,5 +133,54 @@
         &-bg {
             background-color: whitesmoke;
         }
+    }
+}
+
+.pagination {
+    display: flex;
+    width: 80%;
+    margin: 0 auto;
+    justify-content: center;
+    font-size: 20px;
+    align-items: center;
+
+    button {
+        border: 1px solid black;
+    }
+
+    div {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    &__text {
+        color: blue;
+    }
+    &__number {
+        color: crimson;
+    }
+    &__prev,
+    &__next {
+        width: 30px;
+        height: 30px;
+    }
+    &__pages {
+        button {
+            width: 30px;
+            height: 30px;
+        }
+    }
+    &__first,
+    &__last {
+        width: 60px;
+        height: 30px;
+        color: green;
+    }
+    &__select {
+        color: brown;
+        font-size: 20px;
+    }
+    &__btns {
+        display: flex;
     }
 }
