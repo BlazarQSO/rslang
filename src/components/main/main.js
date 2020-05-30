@@ -339,11 +339,6 @@ export default class Main {
             const INTERVAL_FACTOR = 5;
             this.updateAllStudyWords(word, false, true, false, false, INTERVAL_FACTOR, 'study');
         };
-        // document.getElementById('cardRemove').onclick = () => {
-        //     const word = this.listToday[this.cardIndex];
-        //     const INTERVAL_FACTOR = 0;
-        //     this.updateAllStudyWords(word, false, true, false, false, INTERVAL_FACTOR, 'remove');
-        // };
 
         document.getElementById('settings').onchange = (e) => {
             if (e.target.tagName === 'INPUT') {
@@ -649,6 +644,7 @@ export default class Main {
                     this.updateAllStudyWords(word, false, true, true, false);
                 } else {
                     this.newWordsToday += 1;
+                    word.translate = await this.getTranslation(word.word);
                     this.updateAllStudyWords(word, true, false, true, false, false, 'study');
                 }
                 if (!this.currentMistake) {
@@ -668,6 +664,7 @@ export default class Main {
                 this.updateAllStudyWords(word, false, true, true, true);
             } else {
                 this.newWordsToday += 1;
+                word.translate = await this.getTranslation(word.word);
                 this.updateAllStudyWords(word, true, false, true, true, false, 'study');
             }
             this.incorrectWord(answer, word.word);

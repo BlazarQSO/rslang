@@ -1,6 +1,7 @@
 export default class Dictionary {
     constructor() {
         this.allStudyWords = [];
+        this.settings = JSON.parse(localStorage.getItem('settings'));
     }
 
     create() {
@@ -25,107 +26,20 @@ export default class Dictionary {
         const length = prevWords + this.wordsInPage;
         for (let i = prevWords; i < length && i < this.allWords; i += 1) {
             const li = document.createElement('li');
-            const word = document.createElement('div');
-            word.className = 'list__word';
-            const wordItem = document.createElement('span');
-            wordItem.innerHTML = this.allStudyWords[i].word;
-            wordItem.className = 'list__word-item';
-            const transcription = document.createElement('span');
-            transcription.innerHTML = this.allStudyWords[i].transcription;
-            transcription.className = 'list__word-transcription';
-            const wordSound = document.createElement('button');
-            wordSound.className = 'list__sound';
-            wordSound.setAttribute('data-src', this.allStudyWords[i].audio);
-            word.append(wordItem);
-            word.append(transcription);
-            word.append(wordSound);
-
-            const translate = document.createElement('div');
-            translate.className = 'list__translate';
-            const translateItem = document.createElement('span');
-            // translateItem.innerHTML = this.allStudyWords[i].translate;
-            translateItem.className = 'list__translate-item';
-            const translateImg = document.createElement('img');
-            translateImg.className = 'list__translate-img';
-            translateImg.src = this.allStudyWords[i].image;
-            translateImg.setAttribute('alt', '');
-            translate.append(translateItem);
-            translate.append(translateImg);
-
-            const meaning = document.createElement('div');
-            meaning.className = 'list__meaning';
-            const meaningItem = document.createElement('span');
-            meaningItem.className = 'list__meaning-item';
-            meaningItem.innerHTML = this.allStudyWords[i].textMeaning;
-            const meaningSound = document.createElement('button');
-            meaningSound.className = 'list__sound';
-            meaningSound.setAttribute('data-src', this.allStudyWords[i].audioMeaning);
-            meaning.append(meaningItem);
-            meaning.append(meaningSound);
-
-            const example = document.createElement('div');
-            example.className = 'list__example';
-            const exampleItem = document.createElement('span');
-            exampleItem.className = 'list__example-item';
-            exampleItem.innerHTML = this.allStudyWords[i].textExample;
-            const exampleSound = document.createElement('button');
-            exampleSound.className = 'list__sound';
-            exampleSound.setAttribute('data-set', this.allStudyWords[i].audioExample);
-            example.append(exampleItem);
-            example.append(exampleSound);
-
-            const time = document.createElement('div');
-            time.className = 'list__time';
-            const last = document.createElement('span');
-            last.className = 'list__time-last';
-            last.innerHTML = 'Last Time:';
-            const lastDate = document.createElement('span');
-            lastDate.className = 'list__time-date';
-            lastDate.innerHTML = new Date(this.allStudyWords[i].lastTime).toJSON().slice(0, 16).replace('T', ' ');
-            const next = document.createElement('span');
-            next.className = 'list__time-next';
-            next.innerHTML = 'Next Time:';
-            const nextDate = document.createElement('span');
-            nextDate.className = 'list__time-date';
-            nextDate.innerHTML = new Date(this.allStudyWords[i].nextTime).toJSON().slice(0, 16).replace('T', ' ');
-            time.append(last);
-            time.append(lastDate);
-            time.append(next);
-            time.append(nextDate);
-
-            const rating = document.createElement('div');
-            rating.className = 'list__rating';
-            const repeat = document.createElement('span');
-            repeat.className = 'list__rating-discript';
-            repeat.innerHTML = 'Repeat:';
-            const count = document.createElement('span');
-            count.className = 'list__rating-count';
-            count.innerHTML = this.allStudyWords[i].count;
-            const discript = document.createElement('span');
-            discript.className = 'list__rating-discript';
-            discript.innerHTML = 'Rating:';
-            const visual = document.createElement('div');
-            visual.className = 'list__rating-visual';
-            const COUNT_RATING = 5;
-            const wordRating = this.allStudyWords[i].rating;
-            for (let s = 1; s <= COUNT_RATING; s += 1) {
-                const span = document.createElement('span');
-                span.className = `list__rating-color${wordRating}`;
-                if (s > wordRating) span.classList.add('list__rating-bg');
-                visual.append(span);
+            li.append(this.getWord(i));
+            li.append(this.getTranslate(i));
+            if (this.settings.dictMeaning) {
+                li.append(this.getMeaning(i));
             }
-            rating.append(repeat);
-            rating.append(count);
-            rating.append(discript);
-            rating.append(visual);
-            rating.append(wordRating);
-
-            li.append(word);
-            li.append(translate);
-            li.append(meaning);
-            li.append(example);
-            li.append(time);
-            li.append(rating);
+            if (this.settings.dictExapmle) {
+                li.append(this.getExample(i));
+            }
+            if (this.settings.dictTime) {
+                li.append(this.getTime(i));
+            }
+            if (this.settings.dictRepeat || this.settings.dictRating) {
+                li.append(this.getRating(i));
+            }
             list.append(li);
         }
     }
@@ -238,5 +152,170 @@ export default class Dictionary {
             this.createNextPage(1);
             this.createPagination();
         };
+        document.getElementById('settings').onchange = (e) => {
+            if (e.target.tagName === 'INPUT') {
+                this.getSettings();
+                localStorage.setItem('settings', JSON.stringify(this.settings));
+            }
+        };
+    }
+
+    getWord(index) {
+        const word = document.createElement('div');
+        word.className = 'list__word';
+        const wordItem = document.createElement('span');
+        wordItem.innerHTML = this.allStudyWords[index].word;
+        wordItem.className = 'list__word-item';
+        word.append(wordItem);
+        if (this.settings.dictTranscription) {
+            const transcription = document.createElement('span');
+            transcription.innerHTML = this.allStudyWords[index].transcription;
+            transcription.className = 'list__word-transcription';
+            word.append(transcription);
+        }
+        if (this.settings.dictSound) {
+            const wordSound = document.createElement('button');
+            wordSound.className = 'list__sound';
+            wordSound.setAttribute('data-src', this.allStudyWords[index].audio);
+            word.append(wordSound);
+        }
+        return word;
+    }
+
+    getTranslate(index) {
+        const translate = document.createElement('div');
+        translate.className = 'list__translate';
+        const translateItem = document.createElement('span');
+        translateItem.innerHTML = this.allStudyWords[index].translate;
+        translateItem.className = 'list__translate-item';
+        translate.append(translateItem);
+
+        if (this.settings.dictImage) {
+            const translateImg = document.createElement('img');
+            translateImg.className = 'list__translate-img';
+            translateImg.src = this.allStudyWords[index].image;
+            translateImg.setAttribute('alt', '');
+            translate.append(translateImg);
+        }
+        return translate;
+    }
+
+    getMeaning(index) {
+        const meaning = document.createElement('div');
+        meaning.className = 'list__meaning';
+        const meaningItem = document.createElement('span');
+        meaningItem.className = 'list__meaning-item';
+        meaningItem.innerHTML = this.allStudyWords[index].textMeaning;
+        meaning.append(meaningItem);
+        if (this.settings.dictSound) {
+            const meaningSound = document.createElement('button');
+            meaningSound.className = 'list__sound';
+            meaningSound.setAttribute('data-src', this.allStudyWords[index].audioMeaning);
+            meaning.append(meaningSound);
+        }
+        return meaning;
+    }
+
+    getExample(index) {
+        const example = document.createElement('div');
+        example.className = 'list__example';
+        const exampleItem = document.createElement('span');
+        exampleItem.className = 'list__example-item';
+        exampleItem.innerHTML = this.allStudyWords[index].textExample;
+        example.append(exampleItem);
+        if (this.settings.dictSound) {
+            const exampleSound = document.createElement('button');
+            exampleSound.className = 'list__sound';
+            exampleSound.setAttribute('data-set', this.allStudyWords[index].audioExample);
+            example.append(exampleSound);
+        }
+        return example;
+    }
+
+    getTime(index) {
+        const time = document.createElement('div');
+        time.className = 'list__time';
+        const last = document.createElement('span');
+        last.className = 'list__time-last';
+        last.innerHTML = 'Last Time:';
+        const lastDate = document.createElement('span');
+        lastDate.className = 'list__time-date';
+        lastDate.innerHTML = new Date(this.allStudyWords[index].lastTime).toJSON().slice(0, 16).replace('T', ' ');
+        const next = document.createElement('span');
+        next.className = 'list__time-next';
+        next.innerHTML = 'Next Time:';
+        const nextDate = document.createElement('span');
+        nextDate.className = 'list__time-date';
+        nextDate.innerHTML = new Date(this.allStudyWords[index].nextTime).toJSON().slice(0, 16).replace('T', ' ');
+        time.append(last);
+        time.append(lastDate);
+        time.append(next);
+        time.append(nextDate);
+        return time;
+    }
+
+    getRating(index) {
+        const rating = document.createElement('div');
+        rating.className = 'list__rating';
+        if (this.settings.dictRepeat) {
+            const repeat = document.createElement('span');
+            repeat.className = 'list__rating-discript';
+            repeat.innerHTML = 'Repeat:';
+            const count = document.createElement('span');
+            count.className = 'list__rating-count';
+            count.innerHTML = this.allStudyWords[index].count;
+            rating.append(repeat);
+            rating.append(count);
+        }
+        if (this.settings.dictRating) {
+            const discript = document.createElement('span');
+            discript.className = 'list__rating-discript';
+            discript.innerHTML = 'Rating:';
+            const visual = document.createElement('div');
+            visual.className = 'list__rating-visual';
+            const COUNT_RATING = 5;
+            const wordRating = this.allStudyWords[index].rating;
+            for (let s = 1; s <= COUNT_RATING; s += 1) {
+                const span = document.createElement('span');
+                span.className = `list__rating-color${wordRating}`;
+                if (s > wordRating) span.classList.add('list__rating-bg');
+                visual.append(span);
+            }
+            rating.append(discript);
+            rating.append(visual);
+        }
+        return rating;
+    }
+
+    getCheckRadio(name) {
+        const elements = document.getElementsByName(name);
+        for (let i = 0; i < elements.length; i += 1) {
+            if (elements[i].checked) {
+                this.settings[elements[i].id] = true;
+            } else {
+                this.settings[elements[i].id] = false;
+            }
+        }
+    }
+
+    setSettings() {
+        this.settings = JSON.parse(this.settings);
+        const keys = Object.keys(this.settings);
+        keys.forEach((item) => {
+            document.getElementById(item).checked = this.settings[item];
+        });
+        document.getElementById('newWords').value = this.settings.newWords;
+        document.getElementById('maxWords').value = this.settings.maxWords;
+    }
+
+    getSettings() {
+        this.settings = {};
+        this.getCheckRadio('listType');
+        const checkBoxes = document.querySelectorAll('[type=checkbox]');
+        Array.from(checkBoxes).forEach((item) => {
+            this.settings[item.id] = item.checked;
+        });
+        this.settings.newWords = document.getElementById('newWords').value;
+        this.settings.maxWords = document.getElementById('maxWords').value;
     }
 }

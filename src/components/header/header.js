@@ -7,14 +7,16 @@ function eventNav(e) {
         const mainPage = document.getElementById('main');
         if (e.target.id === 'liMain' && !e.target.classList.contains('decoration')) {
             document.getElementById('statistics').classList.remove('show');
+            document.getElementById('dictionary').classList.remove('show');
             mainPage.classList.remove('hide');
             (new Main()).createCard();
         } else if (e.target.id === 'liStatistics') {
-            // mainPage.innerHTML = '';
+            mainPage.innerHTML = '';
             mainPage.classList.add('hide');
             new Statistics().create();
             document.getElementById('statistics').classList.add('show');
         } if (e.target.id === 'liDictionary') {
+            mainPage.innerHTML = '';
             mainPage.classList.add('hide');
             document.getElementById('dictionary').classList.add('show');
             new Dictionary().create();
