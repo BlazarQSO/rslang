@@ -8,11 +8,21 @@ export default class Dictionary {
         const userWords = localStorage.getItem('userAllStudyWords');
         if (userWords) {
             this.allStudyWords = JSON.parse(userWords);
-            // this.allStudyWords.sort((a, b) => a.nextTime - b.nextTime);
+            const study = this.allStudyWords.filter((item) => item.state === 'study');
+            const remove = this.allStudyWords.filter((item) => item.state === 'remove');
+            const diff = this.allStudyWords.filter((item) => item.state === 'difficult');
+            const learned = this.allStudyWords.filter((item) => item.state === 'learned');
+            this.allStudyWords = [];
+            this.allStudyWords.push(study);
+            this.allStudyWords.push(diff);
+            this.allStudyWords.push(remove);
+            this.allStudyWords.push(learned);
         }
 
+        document.getElementById('markStudy').classList.add('btn-select');
         this.wordsInPage = +document.getElementById('selectPages').value;
-        this.allWords = this.allStudyWords.length;
+        this.mark = 0;
+        this.allWords = this.allStudyWords[this.mark].length;
         this.allPages = Math.ceil(this.allWords / this.wordsInPage);
         this.createNextPage(1);
         this.createPagination();
@@ -40,14 +50,17 @@ export default class Dictionary {
             if (this.settings.dictRepeat || this.settings.dictRating) {
                 li.append(this.getRating(i));
             }
+            if (this.settings.dictTransfer) {
+                li.append(this.getTransfer(i));
+            }
             list.append(li);
         }
     }
 
-    createPagination() {
+    createPagination(curPage = 1) {
         document.getElementById('alltWords').innerHTML = this.allWords;
         document.getElementById('allPages').innerHTML = this.allPages;
-        document.getElementById('curPage').innerHTML = '1';
+        document.getElementById('curPage').innerHTML = curPage;
 
         const pages = document.getElementById('pages');
         pages.innerHTML = '';
@@ -61,7 +74,14 @@ export default class Dictionary {
             pages.append(button);
         }
 
-        document.getElementById('page1').classList.add('checked-element');
+        if (document.getElementById('page1')) {
+            if (curPage > VISUAL_BTNS) {
+                document.getElementById('page5').classList.add('checked-element');
+            } else {
+                const selectBtn = curPage % VISUAL_BTNS;
+                document.getElementById(`page${selectBtn}`).classList.add('checked-element');
+            }
+        }
         if (VISUAL_BTNS >= this.allPages) {
             document.getElementById('prevBtn').classList.add('lock-element');
             document.getElementById('firstBtn').classList.add('lock-element');
@@ -158,25 +178,67 @@ export default class Dictionary {
                 localStorage.setItem('settings', JSON.stringify(this.settings));
             }
         };
+
+        document.getElementById('bookmarks').onclick = this.getBookmakr.bind(this);
+        document.getElementById('listDictionary').onclick = (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                if (e.target.dataset.src) {
+                    const play = new Audio();
+                    play.src = e.target.dataset.src;
+                    play.play();
+                } else {
+                    const { word, transfer, mark } = e.target.dataset;
+                    const indx = this.allStudyWords[this.mark].findIndex((el) => el.word === word);
+                    const transferWord = this.allStudyWords[this.mark].splice(indx, 1)[0];
+                    transferWord.state = transfer;
+                    const THREE_DAYS = 60 * 60 * 24 * 1000 * 3;
+                    transferWord.nextTime = new Date().getTime() + THREE_DAYS;
+                    this.allStudyWords[mark].push(transferWord);
+
+                    localStorage.setItem('userAllStudyWords', JSON.stringify(this.allStudyWords.flat()));
+                    this.allWords = this.allStudyWords[this.mark].length;
+                    this.allPages = Math.ceil(this.allWords / this.wordsInPage);
+                    const curPage = (Math.ceil(indx / this.wordsInPage) || 1);
+                    this.createNextPage(curPage);
+                    this.createPagination(curPage);
+                    this.createEvent();
+                }
+            }
+        };
+    }
+
+    getBookmakr(e) {
+        if (e.target.tagName === 'BUTTON') {
+            ['markStudy', 'markDifficult', 'markRemove', 'markLearned'].forEach((item) => {
+                document.getElementById(item).classList.remove('btn-select');
+            });
+            document.getElementById(e.target.id).classList.add('btn-select');
+            this.mark = +e.target.dataset.mark;
+            this.allWords = this.allStudyWords[this.mark].length;
+            this.allPages = Math.ceil(this.allWords / this.wordsInPage);
+            this.createPagination();
+            this.createEvent();
+            this.createNextPage(1);
+        }
     }
 
     getWord(index) {
         const word = document.createElement('div');
         word.className = 'list__word';
         const wordItem = document.createElement('span');
-        wordItem.innerHTML = this.allStudyWords[index].word;
+        wordItem.innerHTML = this.allStudyWords[this.mark][index].word;
         wordItem.className = 'list__word-item';
         word.append(wordItem);
         if (this.settings.dictTranscription) {
             const transcription = document.createElement('span');
-            transcription.innerHTML = this.allStudyWords[index].transcription;
+            transcription.innerHTML = this.allStudyWords[this.mark][index].transcription;
             transcription.className = 'list__word-transcription';
             word.append(transcription);
         }
         if (this.settings.dictSound) {
             const wordSound = document.createElement('button');
             wordSound.className = 'list__sound';
-            wordSound.setAttribute('data-src', this.allStudyWords[index].audio);
+            wordSound.setAttribute('data-src', this.allStudyWords[this.mark][index].audio);
             word.append(wordSound);
         }
         return word;
@@ -186,14 +248,14 @@ export default class Dictionary {
         const translate = document.createElement('div');
         translate.className = 'list__translate';
         const translateItem = document.createElement('span');
-        translateItem.innerHTML = this.allStudyWords[index].translate;
+        translateItem.innerHTML = this.allStudyWords[this.mark][index].translate;
         translateItem.className = 'list__translate-item';
         translate.append(translateItem);
 
         if (this.settings.dictImage) {
             const translateImg = document.createElement('img');
             translateImg.className = 'list__translate-img';
-            translateImg.src = this.allStudyWords[index].image;
+            translateImg.src = this.allStudyWords[this.mark][index].image;
             translateImg.setAttribute('alt', '');
             translate.append(translateImg);
         }
@@ -205,12 +267,12 @@ export default class Dictionary {
         meaning.className = 'list__meaning';
         const meaningItem = document.createElement('span');
         meaningItem.className = 'list__meaning-item';
-        meaningItem.innerHTML = this.allStudyWords[index].textMeaning;
+        meaningItem.innerHTML = this.allStudyWords[this.mark][index].textMeaning;
         meaning.append(meaningItem);
         if (this.settings.dictSound) {
             const meaningSound = document.createElement('button');
             meaningSound.className = 'list__sound';
-            meaningSound.setAttribute('data-src', this.allStudyWords[index].audioMeaning);
+            meaningSound.setAttribute('data-src', this.allStudyWords[this.mark][index].audioMeaning);
             meaning.append(meaningSound);
         }
         return meaning;
@@ -221,12 +283,12 @@ export default class Dictionary {
         example.className = 'list__example';
         const exampleItem = document.createElement('span');
         exampleItem.className = 'list__example-item';
-        exampleItem.innerHTML = this.allStudyWords[index].textExample;
+        exampleItem.innerHTML = this.allStudyWords[this.mark][index].textExample;
         example.append(exampleItem);
         if (this.settings.dictSound) {
             const exampleSound = document.createElement('button');
             exampleSound.className = 'list__sound';
-            exampleSound.setAttribute('data-set', this.allStudyWords[index].audioExample);
+            exampleSound.setAttribute('data-set', this.allStudyWords[this.mark][index].audioExample);
             example.append(exampleSound);
         }
         return example;
@@ -240,13 +302,19 @@ export default class Dictionary {
         last.innerHTML = 'Last Time:';
         const lastDate = document.createElement('span');
         lastDate.className = 'list__time-date';
-        lastDate.innerHTML = new Date(this.allStudyWords[index].lastTime).toJSON().slice(0, 16).replace('T', ' ');
+        if (this.allStudyWords[this.mark][index].lastTime) {
+            lastDate.innerHTML = new Date(this.allStudyWords[this.mark][index].lastTime)
+                .toJSON().slice(0, 16).replace('T', ' ');
+        }
         const next = document.createElement('span');
         next.className = 'list__time-next';
         next.innerHTML = 'Next Time:';
         const nextDate = document.createElement('span');
         nextDate.className = 'list__time-date';
-        nextDate.innerHTML = new Date(this.allStudyWords[index].nextTime).toJSON().slice(0, 16).replace('T', ' ');
+        if (this.allStudyWords[this.mark][index].nextTime) {
+            nextDate.innerHTML = new Date(this.allStudyWords[this.mark][index].nextTime)
+                .toJSON().slice(0, 16).replace('T', ' ');
+        }
         time.append(last);
         time.append(lastDate);
         time.append(next);
@@ -263,7 +331,7 @@ export default class Dictionary {
             repeat.innerHTML = 'Repeat:';
             const count = document.createElement('span');
             count.className = 'list__rating-count';
-            count.innerHTML = this.allStudyWords[index].count;
+            count.innerHTML = this.allStudyWords[this.mark][index].count;
             rating.append(repeat);
             rating.append(count);
         }
@@ -274,7 +342,7 @@ export default class Dictionary {
             const visual = document.createElement('div');
             visual.className = 'list__rating-visual';
             const COUNT_RATING = 5;
-            const wordRating = this.allStudyWords[index].rating;
+            const wordRating = this.allStudyWords[this.mark][index].rating;
             for (let s = 1; s <= COUNT_RATING; s += 1) {
                 const span = document.createElement('span');
                 span.className = `list__rating-color${wordRating}`;
@@ -285,6 +353,29 @@ export default class Dictionary {
             rating.append(visual);
         }
         return rating;
+    }
+
+    getTransfer(index) {
+        const transfer = document.createElement('div');
+        transfer.className = 'list__transfer';
+        const discript = document.createElement('span');
+        discript.innerHTML = 'Transfer the word:';
+        discript.className = 'list__transfer-discript';
+        const buttons = document.createElement('div');
+        buttons.className = 'list__transfer-btns';
+        ['study', 'difficult', 'remove', 'learned'].forEach((item, i) => {
+            if (this.mark !== i) {
+                const btn = document.createElement('button');
+                btn.setAttribute('data-word', this.allStudyWords[this.mark][index].word);
+                btn.setAttribute('data-transfer', item);
+                btn.setAttribute('data-mark', i);
+                btn.innerHTML = item;
+                buttons.append(btn);
+            }
+        });
+        transfer.append(discript);
+        transfer.append(buttons);
+        return transfer;
     }
 
     getCheckRadio(name) {

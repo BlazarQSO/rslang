@@ -73,12 +73,20 @@ export default class Main {
         const answer = document.createElement('div');
         answer.className = 'card__answer';
         const removeBtn = document.createElement('button');
-        removeBtn.innerHTML = 'Remove the word';
+        removeBtn.innerHTML = 'Remove';
         removeBtn.id = 'cardRemove';
+        const learnedBtn = document.createElement('button');
+        learnedBtn.innerHTML = 'Learned';
+        learnedBtn.id = 'cardLearned';
+        const difficultBtn = document.createElement('button');
+        difficultBtn.innerHTML = 'Difficult';
+        difficultBtn.id = 'cardDifficult';
         const showBtn = document.createElement('button');
         showBtn.innerHTML = 'Show the answer';
         showBtn.id = 'cardShow';
         answer.append(removeBtn);
+        answer.append(difficultBtn);
+        answer.append(learnedBtn);
         answer.append(showBtn);
 
         const interval = document.createElement('div');
@@ -87,17 +95,17 @@ export default class Main {
         const againBtn = document.createElement('button');
         againBtn.innerHTML = 'Again';
         againBtn.id = 'cardAgain';
-        const difficultBtn = document.createElement('button');
-        difficultBtn.innerHTML = 'Difficult';
-        difficultBtn.id = 'cardDiff';
+        const hardBtn = document.createElement('button');
+        hardBtn.innerHTML = 'Hard';
+        hardBtn.id = 'cardHard';
         const goodBtn = document.createElement('button');
-        goodBtn.innerHTML = 'Good';
-        goodBtn.id = 'cardGood';
+        goodBtn.innerHTML = 'Normal';
+        goodBtn.id = 'cardNormal';
         const easyBtn = document.createElement('button');
         easyBtn.innerHTML = 'Easy';
         easyBtn.id = 'cardEasy';
         interval.append(againBtn);
-        interval.append(difficultBtn);
+        interval.append(hardBtn);
         interval.append(goodBtn);
         interval.append(easyBtn);
 
@@ -276,7 +284,7 @@ export default class Main {
         document.getElementById('addition').onclick = () => {
             document.getElementById('message').classList.remove('show');
             document.getElementById('card').classList.remove('hide');
-            document.getElementById('intervalBtns').classList.add('show');
+            document.getElementById('intervalBtns').classList.add('show-flex');
             this.passedToday = 0;
             this.cardIndex = 0;
             this.newWordsToday = 0;
@@ -299,7 +307,9 @@ export default class Main {
                 cardCorrect.classList.remove('opacity-correct');
                 document.getElementById('cardRemove').classList.add('lock-element');
                 document.getElementById('cardShow').classList.add('lock-element');
-                document.getElementById('intervalBtns').classList.remove('show');
+                document.getElementById('intervalBtns').classList.remove('show-flex');
+                document.getElementById('cardLearned').classList.remove('lock-element');
+                document.getElementById('cardDifficult').classList.remove('lock-element');
             }
         };
         document.getElementById('cardPlay').onclick = this.playWord.bind(this);
@@ -313,6 +323,8 @@ export default class Main {
         };
         document.getElementById('cardRight').onclick = this.eventRight.bind(this);
         document.getElementById('cardRemove').onclick = this.eventRemove.bind(this);
+        document.getElementById('cardDifficult').onclick = this.eventBookmark.bind(this, 'difficult', 1);
+        document.getElementById('cardLearned').onclick = this.eventBookmark.bind(this, 'learned', 0);
         document.getElementById('cardAgain').onclick = this.eventCardAgain.bind(this);
         document.getElementById('cardShow').onclick = () => {
             if (!document.getElementById('cardShow').classList.contains('lock-element')) {
@@ -324,12 +336,12 @@ export default class Main {
             }
         };
 
-        document.getElementById('cardDiff').onclick = () => {
+        document.getElementById('cardHard').onclick = () => {
             const word = this.listToday[this.cardIndex];
             const INTERVAL_FACTOR = 1;
-            this.updateAllStudyWords(word, false, true, false, false, INTERVAL_FACTOR, 'difficult');
+            this.updateAllStudyWords(word, false, true, false, false, INTERVAL_FACTOR, 'study');
         };
-        document.getElementById('cardGood').onclick = () => {
+        document.getElementById('cardNormal').onclick = () => {
             const word = this.listToday[this.cardIndex];
             const INTERVAL_FACTOR = 3;
             this.updateAllStudyWords(word, false, true, false, false, INTERVAL_FACTOR, 'study');
@@ -383,20 +395,31 @@ export default class Main {
         // тогда добавлять из списка на повторение и не увеличивать nextNewWord.
 
         if (!document.getElementById('cardRemove').classList.contains('lock-element')) {
-            const removeWord = this.listToday.splice(this.cardIndex, 1);
-            const INTERVAL_FACTOR = 0;
-            if (this.allStudyWords.find((item) => item.word === removeWord.word.toLowerCase())) {
-                this.updateAllStudyWords(removeWord, false, true, false, false, INTERVAL_FACTOR, 'remove');
-            } else {
-                this.nextNewWord += 1;
-                this.updateAllStudyWords(removeWord, true, false, false, false, INTERVAL_FACTOR, 'remove');
+            if (this.listToday.length > 0) {
+                const removeWord = this.listToday.splice(this.cardIndex, 1)[0];
+                const INTERVAL_FACTOR = 0;
+                if (this.allStudyWords.find((item) => item.word === removeWord.word)) {
+                    this.updateAllStudyWords(removeWord, false, true, false, false, INTERVAL_FACTOR, 'remove');
+                } else {
+                    this.nextNewWord += 1;
+                    this.updateAllStudyWords(removeWord, true, false, false, false, INTERVAL_FACTOR, 'remove');
+                }
+                let allWords = [...book1, ...book2, ...book3, ...book4, ...book5, ...book6];
+                this.listToday.push(allWords[this.nextNewWord]);
+                allWords = null;
+                this.setWordInCard();
+                this.setTodayStatStorage();
             }
-            let allWords = [...book1, ...book2, ...book3, ...book4, ...book5, ...book6];
-            this.listToday.push(allWords[this.nextNewWord]);
-            allWords = null;
-            this.setWordInCard();
         }
-        this.setTodayStatStorage();
+    }
+
+    eventBookmark(mark, factor) {
+        const word = this.listToday[this.cardIndex];
+        if (this.allStudyWords.find((item) => item.word === word.word.toLowerCase())) {
+            this.updateAllStudyWords(word, false, true, false, false, factor, mark);
+        } else {
+            this.updateAllStudyWords(word, true, false, false, false, factor, mark);
+        }
     }
 
     eventCardAgain() {
@@ -442,13 +465,13 @@ export default class Main {
         // Если указано только повторы, то слова собираются принудительно не дожидаясь их срока повтора
         // Если слово было неверно отвечено в мини игре тогда nextTime = 0; и при сортировке будут вприоритете.
 
+        const userWords = localStorage.getItem('userAllStudyWords');
+        if (userWords) {
+            this.allStudyWords = JSON.parse(userWords);
+            this.allStudyWords.sort((a, b) => a.nextTime - b.nextTime);
+        }
         if (!this.generatedListToday) {
             this.listToday = [];
-            const userWords = localStorage.getItem('userAllStudyWords');
-            if (userWords) {
-                this.allStudyWords = JSON.parse(userWords);
-                this.allStudyWords.sort((a, b) => a.nextTime - b.nextTime);
-            }
             const allWords = [...book1, ...book2, ...book3, ...book4, ...book5, ...book6];
             this.nextNewWord = this.allStudyWords.length;
             const max = +this.settings.maxWords;
@@ -554,6 +577,16 @@ export default class Main {
             } else {
                 document.getElementById('cardRemove').classList.add('hide');
             }
+            if (this.settings.difficultWord) {
+                document.getElementById('cardDifficult').classList.remove('hide');
+            } else {
+                document.getElementById('cardLearned').classList.add('hide');
+            }
+            if (this.settings.learnedWord) {
+                document.getElementById('cardLearned').classList.remove('hide');
+            } else {
+                document.getElementById('cardLearned').classList.add('hide');
+            }
             if (this.settings.showAnswer) {
                 document.getElementById('cardShow').classList.remove('hide');
             } else {
@@ -618,6 +651,16 @@ export default class Main {
             } else {
                 document.getElementById('cardRemove').classList.add('hide');
             }
+            if (this.settings.difficultWord) {
+                document.getElementById('cardDifficult').classList.remove('hide');
+            } else {
+                document.getElementById('cardDifficult').classList.add('hide');
+            }
+            if (this.settings.learnedWord) {
+                document.getElementById('cardLearned').classList.remove('hide');
+            } else {
+                document.getElementById('cardLearned').classList.add('hide');
+            }
             if (this.settings.showAnswer) {
                 document.getElementById('cardShow').classList.remove('hide');
             } else {
@@ -634,8 +677,10 @@ export default class Main {
                 this.input.classList.add('correct-color');
                 document.getElementById('cardShow').classList.add('lock-element');
                 document.getElementById('cardRemove').classList.add('lock-element');
+                document.getElementById('cardLearned').classList.remove('lock-element');
+                document.getElementById('cardDifficult').classList.remove('lock-element');
                 if (this.settings.interval) {
-                    document.getElementById('intervalBtns').classList.add('show');
+                    document.getElementById('intervalBtns').classList.add('show-flex');
                 }
                 this.newConsecutive += 1;
                 this.correctAnswer += 1;
@@ -644,7 +689,6 @@ export default class Main {
                     this.updateAllStudyWords(word, false, true, true, false);
                 } else {
                     this.newWordsToday += 1;
-                    word.translate = await this.getTranslation(word.word);
                     this.updateAllStudyWords(word, true, false, true, false, false, 'study');
                 }
                 if (!this.currentMistake) {
@@ -664,7 +708,6 @@ export default class Main {
                 this.updateAllStudyWords(word, false, true, true, true);
             } else {
                 this.newWordsToday += 1;
-                word.translate = await this.getTranslation(word.word);
                 this.updateAllStudyWords(word, true, false, true, true, false, 'study');
             }
             this.incorrectWord(answer, word.word);
@@ -737,7 +780,9 @@ export default class Main {
     clearCard() {
         document.getElementById('cardRemove').classList.remove('lock-element');
         document.getElementById('cardShow').classList.remove('lock-element');
-        document.getElementById('intervalBtns').classList.remove('show');
+        document.getElementById('cardLearned').classList.add('lock-element');
+        document.getElementById('cardDifficult').classList.add('lock-element');
+        document.getElementById('intervalBtns').classList.remove('show-flex');
         document.getElementById('cardMeaningTranslation').innerHTML = '';
         document.getElementById('cardExampleTranslation').innerHTML = '';
         // document.getElementById('cardImg').src = './img/default.jpg';
@@ -763,15 +808,21 @@ export default class Main {
         this.listToday = [];
     }
 
-    updateAllStudyWords(word, isNew, isUpdate, isCount, mistake, customRating, state) {
+    async updateAllStudyWords(word, isNew, isUpdate, isCount, mistake, customRating, state) {
         const DAY_INTERVAL = 5;
         const DAY = 60 * 60 * 24 * 1000;
         if (isNew) {
-            word.count = 1;
+            if (!word.translate) word.translate = await this.getTranslation(word.word);
+            word.count = (isCount) ? 1 : 0;
             word.mistakes = Number(mistake);
             word.state = state; // study|difficult|remove|learned
             word.customRating = customRating; // undefine|complexity|normal|easy (false|1|3|5)
-            word.rating = this.getRating(word.count, word.mistakes);
+            if (isCount || mistake) {
+                word.rating = this.getRating(word.count, word.mistakes);
+            } else {
+                const MAX_RATING = 5;
+                word.rating = MAX_RATING;
+            }
             word.lastTime = new Date().getTime();
 
             if (customRating) {
